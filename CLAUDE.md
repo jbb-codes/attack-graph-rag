@@ -9,7 +9,7 @@ Question-answering service over MITRE ATT&CK Enterprise. Vector search (Chroma) 
 
 ## Current stage
 
-Stage 1 not started. Stages, each shippable on its own:
+Stage 1 in progress: fixture graph and lookup CLI done (issue #2). Stages, each shippable on its own:
 
 1. Graph load and SPARQL queries (plain Python)
 2. Vector store and retrieval (plain Python)
@@ -29,6 +29,23 @@ Update this section when a stage starts or finishes.
 - Public repo: no secrets, no personal data in code, docs, or commits.
 - README is deliberately deferred to stage 6.
 
+## Definition of done for an issue
+
+An issue is done when all its acceptance criteria are met and tests pass. At that point, before offering a commit or PR, update `docs/learning/` in the same change:
+
+- A Mermaid diagram of what was built, in the issue's page (`docs/learning/issue-NN-<short-name>.md`). Use teal for data and purple for code, keep box text short, and include a key.
+- New keywords in `glossary.md`.
+- New rows and syntax tips in `python-for-node-devs.md`.
+- A files-and-purpose list and a code tour for the issue.
+
+Plain English, one line per entry, written for a Node/TS developer new to Python.
+
 ## Commands
 
-None yet. Add test, run, and load commands here as they are created.
+- Install: `uv sync`
+- Test: `uv run pytest`
+- Look up a technique: `uv run attack-graph technique T1566.001`
+- Look up a group (name or alias): `uv run attack-graph group APT29`
+- Use another STIX file: `uv run attack-graph --data path/to/bundle.json technique T1566`
+
+Add load commands here as they are created.
