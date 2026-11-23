@@ -158,6 +158,39 @@ A helper that takes a pattern fragment and a subject, then returns sorted `Ref`s
 
 ### What to try
 
-- Run `uv run attack-graph technique T1003.001` and find each printed line in `_format_technique` in `cli.py`.
-- Change a relationship in the fixture, rerun, and see the output change.
-- Print `len(graph._graph)` after loading to see how many triples the fixture produces.
+1. **Match output to code.** Run `uv run attack-graph technique T1003.001`. Then open `_format_technique` in `cli.py` and find the line of code that printed each line you see.
+
+2. **Remove one fact and watch the output change.** A relationship is one fact linking two things, like "APT29 uses T1566.001". This makes a copy of the fixture without that one fact. Your real fixture is not touched.
+
+   ```bash
+   uv run python -c "
+   import json
+   from importlib.resources import files
+   d = json.loads((files('attack_graph')/'data'/'attack_fixture.json').read_text())
+   ids = {o['external_references'][0]['external_id']: o['id'] for o in d['objects'] if 'external_references' in o}
+   d['objects'] = [o for o in d['objects'] if not (o.get('relationship_type') == 'uses' and o['source_ref'] == ids['G0016'] and o['target_ref'] == ids['T1566.001'])]
+   json.dump(d, open('/tmp/edited.json', 'w'))
+   "
+   ```
+
+   It prints nothing when it works. Now run the CLI twice and compare:
+
+   ```bash
+   uv run attack-graph group APT29
+   uv run attack-graph --data /tmp/edited.json group APT29
+   ```
+
+   The first shows 7 techniques. The second shows 6, with `T1566.001 Spearphishing Attachment` gone. The output comes from the data, not from fixed text in the code. `--data` tells the CLI to load a different file.
+
+3. **Count the facts in the graph.** Every fact in the graph is one triple. This loads the fixture and prints how many there are (it should print `248`):
+
+   ```bash
+   uv run python -c "
+   from importlib.resources import files
+   from attack_graph.graph import AttackGraph
+   g = AttackGraph.from_stix_file(files('attack_graph')/'data'/'attack_fixture.json')
+   print(len(g._graph))
+   "
+   ```
+
+   `_graph` starts with an underscore, which means "private, don't use from outside". We peek at it here only to see the number.
