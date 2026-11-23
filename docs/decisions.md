@@ -31,3 +31,15 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Decision:** Build in six shippable stages, plain Python before Docker, Kubernetes late. README is written in stage 6.
 - **Why:** Avoid debugging several new technologies at once. A README describes a finished system, so writing it early means rewriting it.
 - **Fallback:** If Kubernetes proves too hard, stages 1 to 4 plus documentation are still a complete portfolio project.
+
+## 2026-11-23: Fixture is a STIX bundle, loaded through the real loader
+
+- **Decision:** The ~20-technique fixture is a trimmed STIX 2.1 JSON bundle (same shape as the official ATT&CK release). Stage 1 loads it with the same loader the full dataset will use. The CLI defaults to this bundled fixture until a full-data load exists.
+- **Why:** Tests exercise the real parsing path, and swapping in the full dataset later changes only the file, not the code. IDs are real ATT&CK IDs; relationships are simplified and chosen for tests, not guaranteed to match upstream.
+- **Rejected:** a hand-made custom format (would need a second loader and hide parsing bugs).
+
+## 2026-11-23: Plain RDF with `uses` and `mitigates` only
+
+- **Decision:** One namespace, five classes (Technique, Group, Software, Mitigation), and two relationship predicates. Tactics are stored as text on techniques, not as separate resources. SPARQL values are bound, never string-formatted.
+- **Why:** Smallest model that answers the stage 1 lookups. Tactic resources and sub-technique links can be added when a query needs them.
+- **Rejected:** modeling tactics and sub-techniques now (no consumer yet).

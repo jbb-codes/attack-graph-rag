@@ -1,0 +1,1067 @@
+{
+ "type": "bundle",
+ "id": "bundle--d850a617-501e-539c-9921-0469d644d4bc",
+ "objects": [
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--fb80865a-6ee4-55f1-9104-2566cd883acc",
+   "name": "Phishing",
+   "description": "Adversaries send deceptive messages to trick targets into giving access.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1566"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "initial-access"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--dc7fde2d-f7e7-5185-994f-e0e268fbeee3",
+   "name": "Spearphishing Attachment",
+   "description": "Targeted emails carry a malicious attachment that runs when opened.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1566.001"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "initial-access"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--790e7428-9ab9-5b62-9331-bf36db3417cb",
+   "name": "Exploit Public-Facing Application",
+   "description": "Adversaries exploit a flaw in an internet-facing service to get in.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1190"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "initial-access"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--9c2f27c9-3433-5bac-bbeb-0fc6ce5f5f61",
+   "name": "Valid Accounts",
+   "description": "Adversaries use stolen or abused legitimate credentials.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1078"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "defense-evasion"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "initial-access"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "persistence"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "privilege-escalation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--42fa291d-e0eb-5ba4-adf3-93b770121057",
+   "name": "Command and Scripting Interpreter",
+   "description": "Adversaries run commands through shells and scripting languages.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1059"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13",
+   "name": "PowerShell",
+   "description": "Adversaries use PowerShell to run commands and scripts on Windows.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1059.001"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--b4279095-5e09-5ad1-b094-25133768f84d",
+   "name": "Scheduled Task/Job",
+   "description": "Adversaries schedule tasks to run code now or repeatedly.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1053"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "execution"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "persistence"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "privilege-escalation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--fc5dc498-54d3-5e8e-8c10-3ef9b709c15e",
+   "name": "Boot or Logon Autostart Execution",
+   "description": "Adversaries configure the system to run a program at boot or logon.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1547"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "persistence"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "privilege-escalation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--ff888506-fcf7-55ab-ae7d-f99f244d03ce",
+   "name": "Registry Run Keys / Startup Folder",
+   "description": "Adversaries add programs to registry run keys or the startup folder.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1547.001"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "persistence"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "privilege-escalation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--3f418526-e634-5802-9ee8-7749cacbf4b7",
+   "name": "Create or Modify System Process",
+   "description": "Adversaries install or alter system services to run their code.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1543"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "persistence"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "privilege-escalation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--94287720-97ee-574c-a8f4-6fde74e23f11",
+   "name": "OS Credential Dumping",
+   "description": "Adversaries extract account credentials from the operating system.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1003"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "credential-access"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--9f0f6217-75b2-5691-9ddb-a38348b58dcc",
+   "name": "LSASS Memory",
+   "description": "Adversaries read credentials from the memory of the LSASS process.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1003.001"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "credential-access"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--1a7a2fa0-74a6-5df4-83a8-a5e0b2eb6721",
+   "name": "Process Injection",
+   "description": "Adversaries run code inside another process to hide or gain rights.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1055"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "defense-evasion"
+    },
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "privilege-escalation"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--7e101d7f-11cc-5bba-9e97-d4a3d391f8b8",
+   "name": "Obfuscated Files or Information",
+   "description": "Adversaries make files or data hard to detect or analyze.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1027"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "defense-evasion"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--546cfce8-ad47-574f-bfc9-29b40c9e978e",
+   "name": "Remote Services",
+   "description": "Adversaries log in to remote services with valid accounts.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1021"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "lateral-movement"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--38b9b2d5-95ea-510d-93d3-c0ffed76b7c4",
+   "name": "Remote Desktop Protocol",
+   "description": "Adversaries use RDP to control other systems remotely.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1021.001"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "lateral-movement"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--6222cc39-6aeb-5b1e-9694-69bf71f00f96",
+   "name": "Application Layer Protocol",
+   "description": "Adversaries hide command traffic inside common protocols such as HTTP.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1071"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "command-and-control"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--664dd611-a0fa-52d2-a36f-8d34904a3ef6",
+   "name": "Data Encrypted for Impact",
+   "description": "Adversaries encrypt data to block access, often for ransom.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1486"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "impact"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--47d919f9-46ad-58ed-aff3-df3cb437f92a",
+   "name": "Exfiltration Over C2 Channel",
+   "description": "Adversaries steal data over their existing command channel.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1041"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "exfiltration"
+    }
+   ]
+  },
+  {
+   "type": "attack-pattern",
+   "id": "attack-pattern--c252d575-ffe5-5c2e-90e4-b00d6738d1f3",
+   "name": "System Information Discovery",
+   "description": "Adversaries collect details about the OS and hardware.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "T1082"
+    }
+   ],
+   "kill_chain_phases": [
+    {
+     "kill_chain_name": "mitre-attack",
+     "phase_name": "discovery"
+    }
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "name": "APT29",
+   "description": "Threat group attributed to Russia's SVR.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0016"
+    }
+   ],
+   "aliases": [
+    "APT29",
+    "Cozy Bear",
+    "The Dukes",
+    "NOBELIUM"
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "name": "APT28",
+   "description": "Threat group attributed to Russia's GRU.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0007"
+    }
+   ],
+   "aliases": [
+    "APT28",
+    "Fancy Bear",
+    "Sofacy"
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "name": "Lazarus Group",
+   "description": "Threat group attributed to North Korea.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0032"
+    }
+   ],
+   "aliases": [
+    "Lazarus Group",
+    "HIDDEN COBRA"
+   ]
+  },
+  {
+   "type": "intrusion-set",
+   "id": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "name": "FIN7",
+   "description": "Financially motivated threat group.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "G0046"
+    }
+   ],
+   "aliases": [
+    "FIN7"
+   ]
+  },
+  {
+   "type": "malware",
+   "id": "malware--66665e03-ae11-5f38-8fd9-14092835232a",
+   "name": "Mimikatz",
+   "description": "Credential theft tool that reads secrets from memory.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0002"
+    }
+   ]
+  },
+  {
+   "type": "malware",
+   "id": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff",
+   "name": "Cobalt Strike",
+   "description": "Commercial adversary simulation tool widely abused by attackers.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0154"
+    }
+   ]
+  },
+  {
+   "type": "tool",
+   "id": "tool--a6ee79c9-d624-58df-ae31-5205f553e131",
+   "name": "PsExec",
+   "description": "Tool for running programs on remote Windows systems.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0029"
+    }
+   ]
+  },
+  {
+   "type": "malware",
+   "id": "malware--66043065-81f0-59f6-93a2-54274894b28a",
+   "name": "WannaCry",
+   "description": "Ransomware worm that spread through SMB.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "S0366"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--b34e6134-0b41-5a4e-b1aa-0473b898f423",
+   "name": "User Training",
+   "description": "Train users to spot and report suspicious messages.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1017"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--b502eda6-0537-5a27-b3cb-478701014504",
+   "name": "Multi-factor Authentication",
+   "description": "Require more than a password to sign in.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1032"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--56605e20-d86e-5ecf-9028-6a545f5a7f2e",
+   "name": "Privileged Account Management",
+   "description": "Limit and monitor accounts with elevated rights.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1026"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--825e309d-6de5-5868-bd0b-7755ea216fc0",
+   "name": "Execution Prevention",
+   "description": "Block unapproved code from running.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1038"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--93ee8d78-ab6f-503b-b5ba-20ff67dc3d59",
+   "name": "Behavior Prevention on Endpoint",
+   "description": "Block suspicious behavior on hosts.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1040"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--00fcd62c-ba29-524b-b688-5bc9628109a0",
+   "name": "Update Software",
+   "description": "Patch software promptly.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1051"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--077b4b33-8d1b-57ab-bf9a-cc46e08426bf",
+   "name": "Network Segmentation",
+   "description": "Separate networks to limit reach.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1030"
+    }
+   ]
+  },
+  {
+   "type": "course-of-action",
+   "id": "course-of-action--ff63fc8d-8d4c-5437-a67e-f65df3b8e2d6",
+   "name": "Data Backup",
+   "description": "Keep recoverable copies of important data.",
+   "external_references": [
+    {
+     "source_name": "mitre-attack",
+     "external_id": "M1053"
+    }
+   ]
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--9613a665-98e5-51a7-9678-85961fb027bf",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--dc7fde2d-f7e7-5185-994f-e0e268fbeee3"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--b1990c51-66a3-58be-ab59-70075ddc858d",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--0511cb3b-abf7-5a41-a96b-ff6667ec911a",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--9c2f27c9-3433-5bac-bbeb-0fc6ce5f5f61"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--b724bcc5-660f-536f-aaca-0c405e70ad48",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--ff888506-fcf7-55ab-ae7d-f99f244d03ce"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--d68a2673-34e5-5a60-8cfb-4e29d7a3e2bd",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--9f0f6217-75b2-5691-9ddb-a38348b58dcc"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--33b1cedd-a444-5314-8d85-4d4ef23b4ead",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--7e101d7f-11cc-5bba-9e97-d4a3d391f8b8"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--27d71bf3-aed8-5205-a072-4fe946bb7524",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "attack-pattern--6222cc39-6aeb-5b1e-9694-69bf71f00f96"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--af465b38-af15-5bf2-a227-8f455d0382fa",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--dc7fde2d-f7e7-5185-994f-e0e268fbeee3"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--82105fbc-99d0-5111-92c9-5cfc95e9ba0a",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--790e7428-9ab9-5b62-9331-bf36db3417cb"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--d35bcf54-f6db-574e-ae8b-bfe8f4fe56b8",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--9c2f27c9-3433-5bac-bbeb-0fc6ce5f5f61"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--9691af26-38e9-5c37-9012-90fbb7918e7b",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--9f0f6217-75b2-5691-9ddb-a38348b58dcc"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1a90e8da-bcbe-527d-ae3e-239d1c200a59",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--7e101d7f-11cc-5bba-9e97-d4a3d391f8b8"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--e1c95e30-ccef-5667-875d-96d926bc18da",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--6222cc39-6aeb-5b1e-9694-69bf71f00f96"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--df35d83b-e7cd-50aa-ac86-b045bf1dc481",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1ca31c94-22b7-5924-8de0-2fb59d336e99",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--664dd611-a0fa-52d2-a36f-8d34904a3ef6"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--ca3ba3f3-3030-5302-81c0-b7b667c0193a",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--42fa291d-e0eb-5ba4-adf3-93b770121057"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--b85fcf55-8a4d-54c4-8573-acc9b653ddea",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--ff888506-fcf7-55ab-ae7d-f99f244d03ce"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--5cdba25d-0489-5602-a265-4a9be3c3f1b3",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--47d919f9-46ad-58ed-aff3-df3cb437f92a"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--5cd0d1ba-d42f-555b-837a-530f00a25675",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--c252d575-ffe5-5c2e-90e4-b00d6738d1f3"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--ec7a0ce5-9ac7-5d4e-8e1d-e62f3c37fe20",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--1a7a2fa0-74a6-5df4-83a8-a5e0b2eb6721"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--03e82fd5-b9da-5c18-959c-e0224f2d2bdf",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "attack-pattern--7e101d7f-11cc-5bba-9e97-d4a3d391f8b8"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--c00a33f1-611c-5bc8-8257-b743ce84b714",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "attack-pattern--dc7fde2d-f7e7-5185-994f-e0e268fbeee3"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--10779211-038f-5b22-ae28-7396be562351",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--d04c16ab-e066-5791-9cac-5ef195fc338f",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "attack-pattern--b4279095-5e09-5ad1-b094-25133768f84d"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--efd83ca8-9366-50a9-b640-241612467b6a",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "attack-pattern--38b9b2d5-95ea-510d-93d3-c0ffed76b7c4"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--dcebfaa1-6e63-52db-bf39-df3dda07039a",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "attack-pattern--c252d575-ffe5-5c2e-90e4-b00d6738d1f3"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--a1a147af-adfe-52a2-ac94-325b4150badc",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "malware--66665e03-ae11-5f38-8fd9-14092835232a"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--0fa83a5a-838d-58a4-834f-441e74b24f13",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--a36f130c-71a4-566b-820c-adb41ff65421",
+   "target_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1137fa43-5baf-5dec-8cbf-bc418be78a96",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--c3e59e39-b454-5813-9540-1501c207bfe1",
+   "target_ref": "malware--66665e03-ae11-5f38-8fd9-14092835232a"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--95188d27-3515-5cb1-b4b9-b9669fbd4349",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--0a13f603-c7c9-5840-b447-f763b5a055a1",
+   "target_ref": "malware--66043065-81f0-59f6-93a2-54274894b28a"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--8cd2984e-537c-5fce-bee3-faaed3a006a7",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "malware--66665e03-ae11-5f38-8fd9-14092835232a"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--daadc99b-32b8-5f03-9fdc-6a4e0fe8d3dc",
+   "relationship_type": "uses",
+   "source_ref": "intrusion-set--2e067f96-aee8-52db-96de-acd27a4261ec",
+   "target_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--6994d78e-0fcc-52ce-b83d-788ce6a0dd4d",
+   "relationship_type": "uses",
+   "source_ref": "malware--66665e03-ae11-5f38-8fd9-14092835232a",
+   "target_ref": "attack-pattern--94287720-97ee-574c-a8f4-6fde74e23f11"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--c51dd385-030b-53cf-aea6-373430b34425",
+   "relationship_type": "uses",
+   "source_ref": "malware--66665e03-ae11-5f38-8fd9-14092835232a",
+   "target_ref": "attack-pattern--9f0f6217-75b2-5691-9ddb-a38348b58dcc"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--62288c25-3406-5cee-8b11-7c8de7aafe5d",
+   "relationship_type": "uses",
+   "source_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff",
+   "target_ref": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1a4c7511-5fb7-5baa-94b0-945e42888802",
+   "relationship_type": "uses",
+   "source_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff",
+   "target_ref": "attack-pattern--1a7a2fa0-74a6-5df4-83a8-a5e0b2eb6721"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--d6af47bf-32ef-5dc8-a303-f56b947fe278",
+   "relationship_type": "uses",
+   "source_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff",
+   "target_ref": "attack-pattern--6222cc39-6aeb-5b1e-9694-69bf71f00f96"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--7775f980-d726-5bd2-9e37-65efefd726d4",
+   "relationship_type": "uses",
+   "source_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff",
+   "target_ref": "attack-pattern--546cfce8-ad47-574f-bfc9-29b40c9e978e"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--7e2f19b3-4052-5c63-a796-46e727cd6d0d",
+   "relationship_type": "uses",
+   "source_ref": "malware--7c846c99-773d-56df-ac05-bcf2a03430ff",
+   "target_ref": "attack-pattern--7e101d7f-11cc-5bba-9e97-d4a3d391f8b8"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--aa649d08-3fe4-5231-8f2b-de55397a3629",
+   "relationship_type": "uses",
+   "source_ref": "tool--a6ee79c9-d624-58df-ae31-5205f553e131",
+   "target_ref": "attack-pattern--546cfce8-ad47-574f-bfc9-29b40c9e978e"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--2d105d24-62ba-5613-b825-e9154d434316",
+   "relationship_type": "uses",
+   "source_ref": "tool--a6ee79c9-d624-58df-ae31-5205f553e131",
+   "target_ref": "attack-pattern--3f418526-e634-5802-9ee8-7749cacbf4b7"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--889eaf6b-0992-5769-8d5e-53bb5b972461",
+   "relationship_type": "uses",
+   "source_ref": "malware--66043065-81f0-59f6-93a2-54274894b28a",
+   "target_ref": "attack-pattern--664dd611-a0fa-52d2-a36f-8d34904a3ef6"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--43614c7d-d9f1-51b6-8d14-231c09620cfd",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--b34e6134-0b41-5a4e-b1aa-0473b898f423",
+   "target_ref": "attack-pattern--fb80865a-6ee4-55f1-9104-2566cd883acc"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--de451e3f-6fae-5451-827c-831f56af438b",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--b34e6134-0b41-5a4e-b1aa-0473b898f423",
+   "target_ref": "attack-pattern--dc7fde2d-f7e7-5185-994f-e0e268fbeee3"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--cf6bfe92-15f4-5412-9fd6-06fa1e55576c",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--b502eda6-0537-5a27-b3cb-478701014504",
+   "target_ref": "attack-pattern--9c2f27c9-3433-5bac-bbeb-0fc6ce5f5f61"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--25566237-c93c-5577-beee-30954149b032",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--b502eda6-0537-5a27-b3cb-478701014504",
+   "target_ref": "attack-pattern--546cfce8-ad47-574f-bfc9-29b40c9e978e"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--403b9a05-a222-50b5-b80c-b673b21b04a7",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--b502eda6-0537-5a27-b3cb-478701014504",
+   "target_ref": "attack-pattern--38b9b2d5-95ea-510d-93d3-c0ffed76b7c4"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--8f215ef0-5250-5073-bfb2-7603e8b600aa",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--56605e20-d86e-5ecf-9028-6a545f5a7f2e",
+   "target_ref": "attack-pattern--94287720-97ee-574c-a8f4-6fde74e23f11"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--a4d11705-6646-52d5-8ba7-8a1ea20e68ae",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--56605e20-d86e-5ecf-9028-6a545f5a7f2e",
+   "target_ref": "attack-pattern--9f0f6217-75b2-5691-9ddb-a38348b58dcc"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--0add3311-790e-5511-8457-f43c62c13b8a",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--56605e20-d86e-5ecf-9028-6a545f5a7f2e",
+   "target_ref": "attack-pattern--b4279095-5e09-5ad1-b094-25133768f84d"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--b8d22f54-0b49-5986-bb56-c51c7c84650c",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--56605e20-d86e-5ecf-9028-6a545f5a7f2e",
+   "target_ref": "attack-pattern--3f418526-e634-5802-9ee8-7749cacbf4b7"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--788c6313-e778-5e02-a975-f156420205b3",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--825e309d-6de5-5868-bd0b-7755ea216fc0",
+   "target_ref": "attack-pattern--42fa291d-e0eb-5ba4-adf3-93b770121057"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--d348cca8-7f8f-50a4-81bd-1ac5634949a7",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--825e309d-6de5-5868-bd0b-7755ea216fc0",
+   "target_ref": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--7b965738-c2d8-5725-827c-115d5b7bd79b",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--825e309d-6de5-5868-bd0b-7755ea216fc0",
+   "target_ref": "attack-pattern--7e101d7f-11cc-5bba-9e97-d4a3d391f8b8"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--7714c70f-7012-5e16-97be-281cbe981803",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--93ee8d78-ab6f-503b-b5ba-20ff67dc3d59",
+   "target_ref": "attack-pattern--1a7a2fa0-74a6-5df4-83a8-a5e0b2eb6721"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--1658f4f4-9a46-58d3-86f0-8c2608946c40",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--93ee8d78-ab6f-503b-b5ba-20ff67dc3d59",
+   "target_ref": "attack-pattern--9f0f6217-75b2-5691-9ddb-a38348b58dcc"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--6ddbdecd-6c85-551c-af2f-dc29c32c8181",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--93ee8d78-ab6f-503b-b5ba-20ff67dc3d59",
+   "target_ref": "attack-pattern--2be21aed-d484-5805-8e1d-f89960bd4d13"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--f38781d7-7b7d-5a47-8abc-f63d06cb8661",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--93ee8d78-ab6f-503b-b5ba-20ff67dc3d59",
+   "target_ref": "attack-pattern--664dd611-a0fa-52d2-a36f-8d34904a3ef6"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--790659a9-28c0-5ffa-b828-eca40d727774",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--00fcd62c-ba29-524b-b688-5bc9628109a0",
+   "target_ref": "attack-pattern--790e7428-9ab9-5b62-9331-bf36db3417cb"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--39f00daf-c5a8-5433-8293-f407f1b3a1df",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--077b4b33-8d1b-57ab-bf9a-cc46e08426bf",
+   "target_ref": "attack-pattern--546cfce8-ad47-574f-bfc9-29b40c9e978e"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--3dc0b3cf-8566-5792-9ffe-633ca6268a39",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--077b4b33-8d1b-57ab-bf9a-cc46e08426bf",
+   "target_ref": "attack-pattern--38b9b2d5-95ea-510d-93d3-c0ffed76b7c4"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--0e3a3818-7a26-5e00-b468-4b19b1bc6bda",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--077b4b33-8d1b-57ab-bf9a-cc46e08426bf",
+   "target_ref": "attack-pattern--6222cc39-6aeb-5b1e-9694-69bf71f00f96"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--841293f2-d36a-59ef-9dd2-f31736d0d5dc",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--077b4b33-8d1b-57ab-bf9a-cc46e08426bf",
+   "target_ref": "attack-pattern--47d919f9-46ad-58ed-aff3-df3cb437f92a"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--75617e17-be49-5c19-9935-5eb84a47bbe3",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--077b4b33-8d1b-57ab-bf9a-cc46e08426bf",
+   "target_ref": "attack-pattern--790e7428-9ab9-5b62-9331-bf36db3417cb"
+  },
+  {
+   "type": "relationship",
+   "id": "relationship--41ba6989-128a-5ecf-b492-c9e511727057",
+   "relationship_type": "mitigates",
+   "source_ref": "course-of-action--ff63fc8d-8d4c-5437-a67e-f65df3b8e2d6",
+   "target_ref": "attack-pattern--664dd611-a0fa-52d2-a36f-8d34904a3ef6"
+  }
+ ]
+}
