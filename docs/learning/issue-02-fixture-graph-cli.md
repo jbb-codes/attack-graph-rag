@@ -6,12 +6,17 @@ Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-nod
 
 ## The big picture
 
+**Key**
+
+- **Teal boxes are data:** files and stored facts. They hold information but do nothing on their own.
+- **Purple boxes are code:** our own Python that reads, queries, or prints the data.
+
 ```mermaid
 ---
 config:
   flowchart:
     padding: 24
-    wrappingWidth: 260
+    wrappingWidth: 300
 ---
 flowchart TD
   A["`**Fixture JSON**
@@ -22,22 +27,12 @@ flowchart TD
   C --> D["`**SPARQL query**
   graph.py finds matching triples`"]
   D --> E["`**CLI output**
-  cli.py prints the final answer`"]
-  subgraph Key
-    direction LR
-    K1["`**Data**
-    files and stored facts, no logic`"]
-    K2["`**Code**
-    our Python that does the work`"]
-  end
-  E ~~~ K1
+  cli.py prints the final results`"]
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
   classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
-  class A,C,K1 data
-  class B,D,E,K2 code
+  class A,C data
+  class B,D,E code
 ```
-
-Teal boxes hold data. Purple boxes are code we wrote.
 
 1. The fixture is a JSON file in STIX format (MITRE's format for ATT&CK).
 2. The loader reads it and turns each item into facts.
