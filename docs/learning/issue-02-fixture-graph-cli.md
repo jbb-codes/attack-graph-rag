@@ -6,10 +6,31 @@ Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-nod
 
 ## The big picture
 
+```mermaid
+---
+config:
+  flowchart:
+    padding: 24
+    wrappingWidth: 300
+---
+flowchart TD
+  A["<b>Fixture JSON</b><br/>attack_fixture.json"] --> B["<b>Loader</b><br/>graph.py: JSON to triples"]
+  B --> C["<b>RDF graph</b><br/>facts held in memory"]
+  C --> D["<b>SPARQL query</b><br/>graph.py: finds facts"]
+  D --> E["<b>CLI output</b><br/>cli.py: prints answer"]
+  subgraph Key
+    direction LR
+    K1["<b>Data</b><br/>files and stored facts"]
+    K2["<b>Code</b><br/>our Python logic"]
+  end
+  E ~~~ K1
+  classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
+  classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
+  class A,C,K1 data
+  class B,D,E,K2 code
 ```
-attack_fixture.json  ->  Loader  ->  RDF graph  ->  SPARQL query  ->  CLI output
-(plain data)            (graph.py)   (in memory)    (graph.py)        (cli.py)
-```
+
+Teal boxes hold data. Purple boxes are code we wrote.
 
 1. The fixture is a JSON file in STIX format (MITRE's format for ATT&CK).
 2. The loader reads it and turns each item into facts.
