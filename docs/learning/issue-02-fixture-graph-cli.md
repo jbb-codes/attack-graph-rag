@@ -11,17 +11,24 @@ Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-nod
 config:
   flowchart:
     padding: 24
-    wrappingWidth: 300
+    wrappingWidth: 260
 ---
 flowchart TD
-  A["<b>Fixture JSON</b><br/>attack_fixture.json"] --> B["<b>Loader</b><br/>graph.py: JSON to triples"]
-  B --> C["<b>RDF graph</b><br/>facts held in memory"]
-  C --> D["<b>SPARQL query</b><br/>graph.py: finds facts"]
-  D --> E["<b>CLI output</b><br/>cli.py: prints answer"]
+  A["`**Fixture JSON**
+  attack_fixture.json, plain data`"] --> B["`**Loader**
+  graph.py turns JSON into triples`"]
+  B --> C["`**RDF graph**
+  facts held in memory as triples`"]
+  C --> D["`**SPARQL query**
+  graph.py finds matching triples`"]
+  D --> E["`**CLI output**
+  cli.py prints the final answer`"]
   subgraph Key
     direction LR
-    K1["<b>Data</b><br/>files and stored facts"]
-    K2["<b>Code</b><br/>our Python logic"]
+    K1["`**Data**
+    files and stored facts, no logic`"]
+    K2["`**Code**
+    our Python that does the work`"]
   end
   E ~~~ K1
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
