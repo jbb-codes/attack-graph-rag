@@ -1,6 +1,8 @@
-# Learning guide
+# Issue #2: fixture graph and lookup CLI
 
-For a Node.js / TypeScript developer new to Python, RDF, and SPARQL. Plain English, short entries.
+What was built: a small ATT&CK fixture is loaded into an in-memory graph, and a command-line tool looks up a technique or group and prints its facts.
+
+Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-node-devs.md).
 
 ## The big picture
 
@@ -17,51 +19,7 @@ attack_fixture.json  ->  Loader  ->  RDF graph  ->  SPARQL query  ->  CLI output
 
 Tests call the CLI's `main()` and check what it prints.
 
-## Node/TS to Python map
-
-| Node/TS                         | Python here                               | Notes                                           |
-| ------------------------------- | ----------------------------------------- | ----------------------------------------------- |
-| `package.json`                  | `pyproject.toml`                          | Name, deps, scripts, build config.              |
-| `package-lock.json`             | `uv.lock`                                 | Exact pinned versions. Commit it.               |
-| `npm` / `pnpm`                  | `uv`                                      | Package manager, written in Rust and very fast. |
-| `npm install`                   | `uv sync`                                 | Installs deps from the lockfile.                |
-| `node_modules/`                 | `.venv/`                                  | Local installed packages. Gitignored.           |
-| `npm run x` / `npx x`           | `uv run x`                                | Runs inside `.venv`.                            |
-| `"bin"` in package.json         | `[project.scripts]`                       | Gives you the `attack-graph` command.           |
-| `devDependencies`               | `[dependency-groups] dev`                 | Test-only deps.                                 |
-| `vitest` / `jest`               | `pytest`                                  | Test files are named `test_*.py`.               |
-| `tsconfig` + `tsc` build        | `hatchling`                               | Packaging tool, only used when building.        |
-| `interface` / `type`            | `@dataclass(frozen=True)`                 | A plain data shape. `frozen` means read-only.   |
-| `process.argv` + commander      | `argparse`                                | Built in. Parses CLI args.                      |
-| `process.exit(1)`               | `return 1` from `main()`                  | The exit code is how scripts signal failure.    |
-| `console.log` / `console.error` | `print()` / `print(..., file=sys.stderr)` | stdout vs stderr.                               |
-| `import { x } from "./y"`       | `from attack_graph.y import x`            | `__init__.py` marks a folder as a package.      |
-| `string \| null`                | `str \| None`                             | Same idea.                                      |
-
-## Glossary
-
-- **ATT&CK:** MITRE's public catalog of attacker behavior.
-- **Technique:** one attacker method, with an ID like `T1566` (phishing).
-- **Group:** an attacker crew, like APT29 (`G0016`).
-- **Software:** malware or tools attackers use (`S...`).
-- **Mitigation:** a defense against a technique (`M...`).
-- **Tactic:** the goal a technique serves, like `persistence`.
-- **STIX:** the JSON format MITRE publishes ATT&CK in. It has objects plus "relationship" objects that link them.
-- **Fixture:** a small fake dataset for tests, so they run fast and offline.
-- **RDF:** a way to store facts as `subject - predicate - object` triples.
-- **Triple:** one fact, like `T1566 - hasName - "Phishing"`.
-- **Graph:** a pile of triples. Things link to other things.
-- **SPARQL:** SQL for triples. You describe a pattern and it returns every match.
-- **rdflib:** the Python library that holds the graph and runs SPARQL.
-- **`initBindings`:** safely plugs values into a query, like a `?` placeholder in SQL.
-- **Seam:** the one place tests plug in. Later this will be `ask()`.
-- **Exit code:** 0 means success, 1 means "not found", 2 means bad input.
-- **stdout / stderr:** normal output vs error output.
-- **Entry point:** a command name mapped to a function.
-- **venv:** an isolated folder of packages for one project.
-- **Lockfile:** an exact record of installed versions, so every machine gets the same ones.
-
-## Files in this repo
+## Files and what they do
 
 - `pyproject.toml`: project config.
 - `uv.lock`: pinned versions.
@@ -71,18 +29,6 @@ Tests call the CLI's `main()` and check what it prints.
 - `tests/test_lookup_cli.py`: the tests.
 - `CLAUDE.md`: instructions for the AI assistant, not part of the app.
 - `docs/decisions.md`: why choices were made.
-
-## Python syntax you'll trip on
-
-- Indentation is the braces. There are no `{}` for blocks.
-- `def f(x: str) -> int:` is a typed function. Types are hints only and aren't enforced at runtime.
-- `self` is `this`, and it's an explicit first parameter in methods.
-- `_name` with a leading underscore means private by convention.
-- `@classmethod` is like a `static` factory method, here `AttackGraph.from_stix_file(...)`.
-- `tuple` is a fixed-size array and `set` is a unique-value `Set`.
-- `with ... as x:` is like try/finally. It cleans up when the block ends.
-- `f"hi {name}"` is a template literal.
-- `raise X from exc` is `throw`, keeping the original error as the cause.
 
 ## graph.py tour
 
@@ -156,7 +102,7 @@ A helper that takes a pattern fragment and a subject, then returns sorted `Ref`s
 - `_query` runs SPARQL. Values go in through `initBindings`, never through string formatting. This is the same reason you use parameterized SQL: user input can never change the query's shape.
 - `_first` returns the first result row or `None`.
 
-### What to try
+## What to try
 
 1. **Match output to code.** Run `uv run attack-graph technique T1003.001`. Then open `_format_technique` in `cli.py` and find the line of code that printed each line you see.
 
