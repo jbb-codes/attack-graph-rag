@@ -8,6 +8,7 @@ reach the client. Business rules (question limits, citations) stay in `ask`.
 
 import json
 import logging
+import logging
 import math
 import time
 from collections import deque
@@ -21,6 +22,7 @@ from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from attack_graph.answer import Answer, Answerer
+from attack_graph.security_log import ClientIds, log_event
 from attack_graph.vector import VectorStoreError
 
 # A question is at most 500 characters; this leaves room for JSON escaping and
@@ -28,8 +30,6 @@ from attack_graph.vector import VectorStoreError
 MAX_BODY_BYTES = 4096
 # Past this many tracked clients, idle ones are dropped so memory stays bounded.
 _SWEEP_THRESHOLD = 10_000
-
-log = logging.getLogger("attack_graph.api")
 
 Clock = Callable[[], float]
 
@@ -93,6 +93,7 @@ def create_app(
     # No interactive docs or schema: less surface for an API this small.
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     limiter = _SlidingWindowLimiter(rate_limit, clock)
+    client_ids = ClientIds()
 
     @app.middleware("http")
     async def add_security_headers(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
@@ -114,7 +115,7 @@ def create_app(
         client = request.client.host if request.client else "unknown"
         wait = limiter.retry_after(client)
         if wait is not None:
-            log.warning("rate limited client=%s", client)
+            log_event("rate_limited", client=client_ids.of(client), retry_after=wait)
             return _fail("rate_limited", headers={"Retry-After": str(wait)})
 
         question = await _read_question(request)
@@ -124,13 +125,13 @@ def create_app(
         try:
             answer = await run_in_threadpool(answerer.ask, question)
         except VectorStoreError:
-            log.error("vector index missing")
+            log_event("index_missing", level=logging.ERROR)
             return _fail("not_ready")
         except Exception as exc:
             # Only the exception type is logged: its message may hold secrets or the question.
-            log.error("ask crashed: %s", type(exc).__name__)
+            log_event("internal_error", level=logging.ERROR, error=type(exc).__name__)
             return _fail("internal_error")
-        return _answer_response(answer)
+        return _answer_response(answer, question)
 
     return app
 
@@ -138,22 +139,30 @@ def create_app(
 async def _read_question(request: Request) -> str | JSONResponse:
     declared = request.headers.get("content-length", "")
     if declared.isdigit() and int(declared) > MAX_BODY_BYTES:
-        return _fail("payload_too_large")
+        return _reject("payload_too_large", "payload_too_large", size=int(declared))
     raw = await request.body()
     if len(raw) > MAX_BODY_BYTES:
-        return _fail("payload_too_large")
+        return _reject("payload_too_large", "payload_too_large", size=len(raw))
     try:
         payload = json.loads(raw)
     except ValueError:
-        return _fail("invalid_request")
+        return _reject("invalid_request", "invalid_json", size=len(raw))
     question = payload.get("question") if isinstance(payload, dict) else None
     if not isinstance(question, str):
-        return _fail("invalid_request")
+        return _reject("invalid_request", "missing_question", size=len(raw))
     return question
 
 
-def _answer_response(answer: Answer) -> JSONResponse:
+def _reject(code: str, reason: str, **fields: int) -> JSONResponse:
+    log_event("input_rejected", reason=reason, **fields)
+    return _fail(code)
+
+
+def _answer_response(answer: Answer, question: str) -> JSONResponse:
     if answer.status == "invalid":
+        # Only the length is logged: the question itself may hold anything.
+        reason = "empty" if not question.strip() else "too_long"
+        log_event("input_rejected", reason=reason, length=len(question.strip()))
         return _fail("invalid_question", message=answer.text)
     if answer.status == "error":
         return _fail("answer_failed")
