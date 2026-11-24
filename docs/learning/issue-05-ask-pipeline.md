@@ -25,17 +25,17 @@ flowchart TD
   C -->|empty or too long| X["`**invalid**
   no LLM call`"]
   C --> S["`**Vector search**
-  vector.py`"]
+  embed, find nearest`"]
   S -->|all too far| N["`**not_found**
   no LLM call`"]
   S --> G["`**Graph facts**
-  graph.py`"]
+  SPARQL, exact data`"]
   G --> P["`**Prompt**
   rules + question + facts`"]
   P --> L["`**LLM**
   llm.py, fake in tests`"]
   L --> V["`**Check citations**
-  keep retrieved IDs only`"]
+  drop IDs we never sent`"]
   V --> A["`**Answer**
   text + cited IDs`"]
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
@@ -44,12 +44,17 @@ flowchart TD
   class C,S,G,P,L,V code
 ```
 
-1. The question is cleaned (control characters removed) and rejected if empty or over 500 characters.
-2. Vector search returns the 5 closest techniques. Any farther than distance 0.75 are dropped.
-3. Nothing left? Return `not_found`. The LLM is never called.
-4. The graph supplies exact facts for each technique: tactics, groups, software, mitigations.
-5. The LLM gets fixed rules (system) plus the question and facts (prompt), both marked as data.
-6. We scan its reply for technique IDs and keep only ones we retrieved. None left means the reply is thrown away.
+Each box above, in order:
+
+1. **Question:** your plain-English text.
+2. **Clean + check:** strip control characters. Empty or over 500 characters is `invalid`, with no LLM call.
+3. **Vector search:** embed the question into numbers, then ask Chroma for the 5 techniques with the closest numbers.
+4. **Too far?:** drop hits with distance above 0.75. Nothing left means `not_found`, with no LLM call.
+5. **Graph facts:** a SPARQL query fetches each technique's exact tactics, groups, software, and mitigations.
+6. **Prompt:** fixed rules, then the question and facts, both wrapped in tags and labeled as data.
+7. **LLM:** writes the short answer. A fake in tests, an offline stand-in in the CLI.
+8. **Check citations:** keep only technique IDs in the reply that we actually retrieved. None left means the reply is discarded.
+9. **Answer:** the text, the cited techniques, and everything retrieved.
 
 ## Files and what they do
 
