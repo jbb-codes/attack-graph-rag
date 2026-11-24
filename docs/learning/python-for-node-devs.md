@@ -34,6 +34,11 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 | `test.each([...])`              | `@pytest.mark.parametrize("x", [...])`    | Runs the test once per value.                   |
 | `expect(fn).toThrow(/msg/)`     | `with pytest.raises(Err, match="msg")`    | `match` is a regex on the message.              |
 | `describe.skip` / tags          | `@pytest.mark.model` + `markers` config   | Custom label; select with `-m model`.           |
+| `fetch(url, {method: "PUT", body})` | `urllib.request.Request(url, data=b, method="PUT")` + `urlopen` | Standard library; raises `URLError` on failure. |
+| `new URL(s)` (`protocol`, `hostname`) | `urllib.parse.urlsplit(s)` (`.scheme`, `.hostname`, `.port`) | `.port` raises `ValueError` if not a number. |
+| `http.createServer` in a test   | `ThreadingHTTPServer(("127.0.0.1", 0), Handler)` | Port 0 picks a free port; run it on a daemon thread. |
+| `try { ... } finally { ... }` as a helper | `@contextmanager` + `yield` | Use as `with helper() as x:`; cleanup runs after. |
+| `process.env.X` with default    | `env.get("X", "")`                        | Missing keys give the default instead of `undefined`. |
 
 ## Syntax you'll trip on
 
@@ -94,3 +99,8 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `pytest.param(value, id="name")` names one case of `@pytest.mark.parametrize`, like a test title in `it.each`.
 - `Path(__file__).parent` is the folder of this file, like `__dirname`. `.read_text()` reads it as a string.
 - A module-level `assert` inside a helper (`assert len(found) == 1, "message"`) fails the calling test with that message.
+- `cls(...)` inside a `@classmethod` builds an instance, like `new this(...)` in a static method. `ChromaVectorStore.remote(url)` is one.
+- `{type(exc).__name__}` in an f-string prints the error's class name only (`URLError`), without its message. Used so errors never leak addresses.
+- `x: dict | None = None` then `x or default`: `or` returns the first truthy side, like `x || default`.
+- `parts.port  # raises` as a bare statement runs the property just for its error. It is a check, not a no-op.
+- `dict` merge keys in YAML (`<<: *anchor`) are Compose's way of reusing config; `&name` defines, `*name` reuses.

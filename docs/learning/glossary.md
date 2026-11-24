@@ -114,3 +114,27 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Poisoned data:** retrieved text with an attack hidden inside.
 - **Injection corpus:** a file of attack strings reused by many tests.
 - **Defense in depth:** several weak layers together, since none is a guarantee.
+
+## Docker and Compose
+
+- **Image:** a frozen, packaged copy of a program plus everything it needs to run. Like a zipped, ready-to-run `node_modules` and Node.
+- **Container:** a running copy of an image, isolated from the rest of your machine. Throw it away and start another any time.
+- **Dockerfile:** the recipe for building an image, one instruction per step.
+- **Layer:** each Dockerfile step is saved. Unchanged steps are reused, so rebuilds are fast.
+- **Multi-stage build:** build in one image, copy only the result into a clean final one, so build tools never ship.
+- **Digest (`@sha256:...`):** a fingerprint of an exact image. Pinning it means a rebuild gets identical bytes.
+- **Volume:** a folder Docker keeps outside the container, so data survives it being removed.
+- **Bind to 0.0.0.0:** listen on every network address inside the container. Safe, because Compose picks what is reachable from outside.
+- **Port mapping:** `127.0.0.1:8000:8000` opens container port 8000 on your machine only.
+- **Healthcheck:** a command Docker runs repeatedly. Exit 0 means the container is `healthy`.
+- **Docker Compose:** one file (`compose.yaml`) that describes several containers and starts them together.
+- **Service:** one container definition in Compose, such as `sparql` or `app`.
+- **`depends_on` with a condition:** wait until another service is healthy, or finished successfully, before starting.
+- **One-off job:** a service that does its work and exits, like `setup`. Restarting it is safe because it is idempotent.
+- **Non-root user:** the container's program runs as an ordinary user, so a break-in has less power.
+- **Capability:** one small slice of root's powers. `cap_drop: ALL` removes them all.
+- **Read-only filesystem:** the container cannot write files except where a volume or `/tmp` is mounted.
+- **SPARQL server (Oxigraph):** a separate program that stores the graph and answers SPARQL over HTTP.
+- **Chroma server:** Chroma run as its own program, so the vector index lives outside the app.
+- **Smoke test:** a quick check that the whole thing starts and does its main job.
+
