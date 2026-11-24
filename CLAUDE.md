@@ -9,7 +9,7 @@ Question-answering service over MITRE ATT&CK Enterprise. Vector search (Chroma) 
 
 ## Current stage
 
-Stage 1 in progress: fixture graph and lookup CLI done (issue #2); full ATT&CK Enterprise load done (issue #3). Stages, each shippable on its own:
+Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 in progress: vector search by meaning done (issue #4). Stages, each shippable on its own:
 
 1. Graph load and SPARQL queries (plain Python)
 2. Vector store and retrieval (plain Python)
@@ -47,6 +47,8 @@ Plain English, one line per entry, written for a Node/TS developer new to Python
 - Load full ATT&CK Enterprise (pinned v20.1, downloads ~55 MB once into `data/`): `uv run attack-graph load`
 - Look up a technique: `uv run attack-graph technique T1566.001`
 - Look up a group (name or alias): `uv run attack-graph group APT29`
+- Embed all techniques for search (first run downloads the ~80 MB embedding model once): `uv run attack-graph index`
+- Find techniques by meaning: `uv run attack-graph search "how do attackers use email?" --limit 5`
 - Use another STIX file (overrides loaded data): `uv run attack-graph --data path/to/bundle.json technique T1566`
 
-Lookups use the loaded data if `load` has run, otherwise the bundled fixture.
+Lookups and `index` use the loaded data if `load` has run, otherwise the bundled fixture. `search` needs `index` first.
