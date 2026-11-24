@@ -9,7 +9,7 @@ Question-answering service over MITRE ATT&CK Enterprise. Vector search (Chroma) 
 
 ## Current stage
 
-Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 done: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API (issue #7). Stage 4 written: Docker and Compose (issue #9; the images and Compose file are written but were not run for lack of Docker, so run `scripts/compose-smoke.sh` before relying on them). Stage 6 started: prompt-injection defenses (issue #8). Stages, each shippable on its own:
+Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 done: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API (issue #7). Stage 4 done: Docker and Compose (issue #9; `scripts/compose-smoke.sh` passes). Stage 6 started: prompt-injection defenses (issue #8). Stages, each shippable on its own:
 
 1. Graph load and SPARQL queries (plain Python)
 2. Vector store and retrieval (plain Python)

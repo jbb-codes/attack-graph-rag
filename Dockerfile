@@ -18,10 +18,10 @@ RUN uv sync --frozen --no-dev --no-editable
 
 # Stage 2: the runtime image.
 FROM python:3.12-slim-bookworm@sha256:44cf1793efa7c7a476bb0f2cff81443f4a072c90c1cb127e2924933daa3e8c64
-# A fixed non-root user. The two folders are created here so named volumes
+# A fixed non-root user. The folders are created here so named volumes
 # mounted on them start out owned by this user and are writable.
 RUN useradd --system --uid 10001 --create-home --home-dir /home/app --shell /usr/sbin/nologin app \
-    && install -d -o app -g app /app/data /home/app/.cache
+    && install -d -o app -g app /app/data /chroma-data /home/app/.cache
 COPY --from=build --chown=app:app /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 WORKDIR /app
