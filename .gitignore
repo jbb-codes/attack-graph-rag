@@ -5,3 +5,4 @@ __pycache__/
 data/
 .env
 eval-results/
+security-results/
