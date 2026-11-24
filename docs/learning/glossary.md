@@ -68,3 +68,16 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Fake LLM:** a test stand-in that answers instantly, for free, the same way every time.
 - **Relevance cutoff:** the distance above which a search hit counts as unrelated (0.75).
 - **Not found:** our answer when nothing relevant exists. The LLM is not called.
+
+## Real LLM and configuration
+
+- **Provider:** who runs the model: Claude (Anthropic's API), a local model, or the offline stand-in.
+- **Environment variable:** a named setting outside the code, set in your shell. Like `process.env.X`.
+- **API key:** a secret password for the Claude API. Lives only in an environment variable.
+- **Fail fast:** check settings at startup and stop with a clear message, instead of failing later.
+- **`.env.example`:** a template of settings with no real values. Safe to commit; your `.env` is not.
+- **Anthropic SDK:** Anthropic's official Python library for calling Claude.
+- **Local model:** a model running on your own machine (for example via Ollama). No key, no cost.
+- **OpenAI-style API:** a common chat HTTP format that many local servers copy.
+- **Refusal:** Claude declining a request; we turn it into our generic error.
+- **Live test:** a test that calls the real API. It costs a little, so it only runs on request.

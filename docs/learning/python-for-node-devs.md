@@ -9,6 +9,7 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 | `package.json`                  | `pyproject.toml`                          | Name, deps, scripts, build config.              |
 | `package-lock.json`             | `uv.lock`                                 | Exact pinned versions. Commit it.               |
 | `npm` / `pnpm`                  | `uv`                                      | Package manager, written in Rust and very fast. |
+| `process.env.X`                 | `os.environ` / `env.get("X", "")`       | A dict of env vars; `.get` avoids a `KeyError`. |
 | `npm install`                   | `uv sync`                                 | Installs deps from the lockfile.                |
 | `node_modules/`                 | `.venv/`                                  | Local installed packages. Gitignored.           |
 | `npm run x` / `npx x`           | `uv run x`                                | Runs inside `.venv`.                            |
@@ -65,3 +66,12 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `@pytest.mark.parametrize("q", [...])` runs one test per value, like `it.each`.
 - `pytest.raises(Err)` is `expect(() => ...).toThrow(Err)`.
 - `x in {"a", "b"}` is a quick set membership check, like `set.has(x)`.
+- `os.environ` is a dict, so use `env.get("X", "default")`. `os.environ["X"]` raises `KeyError` if missing.
+- `Mapping[str, str]` is a read-only dict type. Taking it as a parameter lets tests pass a plain dict.
+- `field(default="", repr=False)` is a dataclass field that stays out of printed output, so secrets don't leak.
+- `raise X(...) from None` throws a new error and hides the original, so its message can't leak.
+- `except Exception:` is `catch (e)`. Prefer naming the type when you can.
+- `"".join(parts)` glues strings, like `parts.join("")`.
+- `Callable[[str, dict], dict]` is a function type, like `(url: string, body: object) => object`.
+- `@pytest.mark.live` tags a test; `-m 'not live'` in `addopts` skips tagged tests by default.
+- `urllib.request` is the standard-library HTTP client. Think a tiny built-in `fetch`.
