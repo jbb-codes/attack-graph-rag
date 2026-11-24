@@ -19,24 +19,24 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  C["`**Client**
-  POST /ask`"] --> H["`**Headers**
-  added to every reply`"]
-  H --> RL["`**Rate limit**
-  20 per minute`"]
+  C["`**1. Client**
+  POST /ask`"] --> H["`**2. Headers**
+  api.py, every reply`"]
+  H --> RL["`**3. Rate limit**
+  api.py, 20 per minute`"]
   RL -->|too many| E429["`**429 reply**
   Retry-After`"]
-  RL --> BD["`**Body check**
-  size, JSON, string`"]
+  RL --> BD["`**4. Body check**
+  api.py, size and JSON`"]
   BD -->|bad| E400["`**400 or 413 reply**
   fixed message`"]
-  BD --> ASK["`**Answerer.ask**
+  BD --> ASK["`**5. Answerer.ask**
   answer.py, unchanged`"]
-  ASK --> MAP["`**Map status**
-  to HTTP code`"]
-  MAP --> OK["`**Shared shape**
+  ASK --> MAP["`**6. Map status**
+  api.py, to HTTP code`"]
+  MAP --> OK["`**7. Shared shape**
   success, data, error`"]
-  ASK -->|crash| E500["`**500 reply**
+  ASK -->|crash| E500["`**8. 500 reply**
   nothing leaked`"]
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
   classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
@@ -44,11 +44,14 @@ flowchart TD
   class H,RL,BD,ASK,MAP code
 ```
 
-1. A request comes in; security headers are added to whatever reply leaves.
-2. The rate limiter counts requests per client address in the last 60 seconds.
-3. The body must be small, valid JSON, an object with a string `question`.
-4. `ask` does the real work. The API only turns its `status` into an HTTP code.
-5. Any surprise becomes a fixed "Something went wrong." with no details.
+1. **Client:** a program (curl, a website) sends `{"question": "..."}` to `POST /ask`.
+2. **Headers:** every reply carries small instructions telling browsers to be strict, such as "don't guess the file type" and "don't cache this".
+3. **Rate limit:** counts requests per client. Over 20 in a minute gets **429 "slow down"**, which protects your Claude bill.
+4. **Body check:** the request must be under 4 KB, valid JSON, with a text `question`. If not, it returns **400 or 413** with a fixed, boring message.
+5. **`Answerer.ask`:** the real work from issues #4 to #6: vector search, graph lookup, then the LLM. The API does not change it.
+6. **Map status:** the API turns `ask`'s result into a web code. `answered` and `not_found` are 200, `invalid` is 400, `error` is 502.
+7. **Shared shape:** every reply has the same three fields, `success`, `data`, `error`, so a client needs only one parser.
+8. **500 reply:** if something crashes unexpectedly, the client sees only "Something went wrong." The real cause goes to the log as an exception type only, so no stack traces, paths or keys leak.
 
 ## Files and what they do
 

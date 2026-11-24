@@ -99,3 +99,6 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Health endpoint:** a cheap URL that says the service is up, for monitors.
 - **Stack trace:** the list of code locations from a crash. Never show it to clients.
 - **Test client:** calls the app in memory, with no real network or port.
+- **Embed (verb):** turn a piece of text into its vector of numbers. We embed every technique at `index` time and the question at search time.
+- **MiniLM (`all-MiniLM-L6-v2`):** the small model that makes our embeddings (384 numbers per text). Runs on your CPU, no key, one ~80 MB download.
+- **Citation check:** after the LLM replies, we keep only technique IDs we really retrieved. A reply citing none is thrown away.
