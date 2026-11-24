@@ -12,7 +12,7 @@ Run by the author's assistant on macOS, no Docker. Tools were run through `uvx` 
 | Python dependencies in `uv.lock` (runtime only) | pip-audit 2.10.1 | 5 advisories, all in `chromadb` 1.5.9. Accepted, see below. |
 | Our code | bandit 1.9.4 (medium and above) | 3 findings (`urlopen` with unchecked schemes). Fixed: see below. |
 | Dockerfile (95 checks) | checkov | 0 failures |
-| Kubernetes manifests (339 checks) | checkov | 6 kinds of finding, all accepted below |
+| Kubernetes manifests (about 340 checks) | checkov | 6 kinds of finding, all accepted below |
 | Secrets in files | checkov | 1 false positive (placeholder in `k8s/examples/secret.example.yaml`), marked in the file |
 
 ### Image scan: NOT RUN
