@@ -1,0 +1,47 @@
+# A PersistentVolumeClaim (PVC) is a request for disk space that outlives pods.
+# The cluster hands out a disk (kind and minikube both ship a default provider);
+# when a pod dies and is replaced, the new pod gets the same disk back.
+# ReadWriteOnce: one node at a time can write it. Fine on a one-node local cluster.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sparql-data   # the graph
+  namespace: attack-graph
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chroma-data   # the vectors
+  namespace: attack-graph
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-data   # the ~55 MB ATT&CK download, cached by the setup job
+  namespace: attack-graph
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-cache   # the ~80 MB embedding model, shared by setup and app
+  namespace: attack-graph
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

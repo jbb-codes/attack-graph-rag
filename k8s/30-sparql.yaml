@@ -1,0 +1,62 @@
+# A Deployment keeps N identical pods running (a pod = one or more containers that
+# run together) and replaces any that die. replicas: 1 because Oxigraph is a single
+# writer on one disk; "Recreate" stops the old pod before starting the new one so two
+# pods never fight over that disk during an update.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sparql
+  namespace: attack-graph
+  labels: {app: sparql}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: sparql}
+  template:
+    metadata:
+      labels: {app: sparql}
+    spec:
+      automountServiceAccountToken: false   # this pod never talks to the Kubernetes API
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001   # volumes are made writable for this group
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: sparql
+          # Built from deploy/oxigraph/Dockerfile and loaded into the cluster by scripts/k8s-smoke.sh.
+          image: attack-graph-oxigraph:local
+          imagePullPolicy: IfNotPresent   # never try to download a local-only image
+          ports:
+            - {name: http, containerPort: 7878}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 1Gi}
+          # Probes: the cluster asks "are you OK?" on a schedule.
+          # readiness = "send me traffic yet?" (fail: removed from the Service, not restarted)
+          # liveness  = "still alive?" (fail: container is restarted)
+          # Same check as the Docker one: an empty ASK query only works if SPARQL works.
+          readinessProbe:
+            exec:
+              command: [python, -c, "import urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:7878/query', b'ASK{}', {'Content-Type': 'application/sparql-query'}), timeout=2)"]
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: [python, -c, "import urllib.request as u; u.urlopen(u.Request('http://127.0.0.1:7878/query', b'ASK{}', {'Content-Type': 'application/sparql-query'}), timeout=2)"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          volumeMounts:
+            - {name: data, mountPath: /data}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: sparql-data}
