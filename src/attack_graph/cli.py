@@ -1,14 +1,16 @@
 """Command-line lookup of ATT&CK techniques and groups."""
 
 import argparse
+import os
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from importlib.resources import as_file, files
 from pathlib import Path
 
 from attack_graph.answer import Answer, Answerer
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
-from attack_graph.llm import LLM, OfflineLLM
+from attack_graph.config import ConfigError, build_llm, load_llm_settings
+from attack_graph.llm import LLM
 from attack_graph.vector import ChromaVectorStore, Embed, VectorStoreError, default_embed
 from attack_graph.release import (
     PINNED,
@@ -32,11 +34,20 @@ def main(
     release: Release = PINNED,
     embed: Embed = default_embed,
     llm: LLM | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> int:
     args = _build_parser().parse_args(argv)
 
     if args.command == "load":
         return _run_load(release, fetch)
+
+    if args.command == "ask" and llm is None:
+        # Fail fast, before touching any data, if the model is not configured.
+        try:
+            llm = build_llm(load_llm_settings(os.environ if env is None else env))
+        except ConfigError as exc:
+            print(exc, file=sys.stderr)
+            return 2
 
     if args.command == "search":
         try:
@@ -61,7 +72,7 @@ def main(
         print(f"Indexed {len(docs)} techniques into {VECTOR_DIR}")
         return 0
     if args.command == "ask":
-        return _run_ask(args.question, graph, embed, llm or OfflineLLM())
+        return _run_ask(args.question, graph, embed, llm)
     if args.command == "technique":
         technique = graph.technique(args.id)
         if technique is None:
