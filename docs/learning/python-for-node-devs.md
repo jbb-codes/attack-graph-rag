@@ -56,3 +56,12 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `[f(x) for x in xs]` is `xs.map(f)`. `sorted(xs, key=...)` is `sort` with a key.
 - `from x import y` inside a function delays a slow import until it is needed.
 - `result["ids"][0]`: Chroma returns one list per question, so `[0]` picks ours.
+- `Literal["a", "b"]` is a string-union type, like `"a" | "b"` in TS.
+- `@dataclass(frozen=True)` is a read-only object with a constructor made for you, like a `readonly` interface plus factory.
+- `str | None` is `string | null`. `llm or OfflineLLM()` picks the fallback when `llm` is `None`.
+- `re.compile(r"...")` is a `RegExp`. `findall` returns every match as a list.
+- `dict.fromkeys(items)` removes duplicates and keeps order, like `[...new Set(items)]`.
+- `(x for x in xs if cond)` is a lazy generator, like a chained iterator; `"".join(...)` consumes it.
+- `@pytest.mark.parametrize("q", [...])` runs one test per value, like `it.each`.
+- `pytest.raises(Err)` is `expect(() => ...).toThrow(Err)`.
+- `x in {"a", "b"}` is a quick set membership check, like `set.has(x)`.

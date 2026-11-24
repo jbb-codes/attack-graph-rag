@@ -55,5 +55,15 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **VectorStore:** our two-method interface (`index`, `search`). The rest of the app depends on it, not on Chroma.
 - **Embedder:** the `embed` function passed into the store. Production uses the real model, tests use a tiny fake.
 - **Retrieval:** finding the relevant facts before any answer is written.
-- **RAG:** retrieval first, then an LLM writes an answer from only those facts.
-- **LLM:** a chat model that writes text. It is not used in this issue.
+
+## The ask pipeline
+
+- **RAG:** retrieval-augmented generation. Fetch facts first, then let the LLM write only from them.
+- **LLM:** a large language model. Text in, text out.
+- **System prompt:** fixed rules sent to the LLM, separate from the user's text.
+- **Prompt:** the question and facts we send for one request.
+- **Grounded:** an answer backed by facts we supplied, not the model's memory.
+- **Citation:** a technique ID in the answer, so a reader can check the source.
+- **Fake LLM:** a test stand-in that answers instantly, for free, the same way every time.
+- **Relevance cutoff:** the distance above which a search hit counts as unrelated (0.75).
+- **Not found:** our answer when nothing relevant exists. The LLM is not called.
