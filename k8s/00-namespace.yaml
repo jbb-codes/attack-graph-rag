@@ -1,0 +1,10 @@
+# A namespace is a named folder inside the cluster. Everything for this project lives in it,
+# so `kubectl delete namespace attack-graph` removes it all in one go.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: attack-graph
+  labels:
+    # Kubernetes itself refuses to start any pod here that is not locked down
+    # (non-root, no extra privileges, no capabilities). A safety net for the manifests below.
+    pod-security.kubernetes.io/enforce: restricted

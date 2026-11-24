@@ -1,0 +1,17 @@
+# A ConfigMap holds plain, non-secret settings. Pods read them as environment variables,
+# so the same image runs anywhere and nothing is baked into it.
+# Never put the API key here: that goes in a Secret (see k8s/examples/secret.example.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: attack-graph-config
+  namespace: attack-graph
+data:
+  # claude (needs the secret), local, or offline (no key, canned answers; used by the smoke test).
+  ATTACK_GRAPH_LLM: claude
+  ATTACK_GRAPH_CLAUDE_MODEL: claude-opus-5-5
+  # Inside a cluster, a Service name is a DNS name: "sparql" reaches the sparql Service.
+  ATTACK_GRAPH_SPARQL_URL: http://sparql:7878
+  ATTACK_GRAPH_CHROMA_URL: http://chroma:8000
+  # Chroma would otherwise send usage stats.
+  ANONYMIZED_TELEMETRY: "False"
