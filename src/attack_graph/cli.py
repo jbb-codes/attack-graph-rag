@@ -9,7 +9,10 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from datetime import datetime, timezone
+
 from attack_graph.answer import Answer, Answerer
+from attack_graph.evals import EvalError, injection_cases, latest_run, load_cases, run_evals, save_run, summarize
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
 from attack_graph.api import create_app
 from attack_graph.config import ConfigError, StoreSettings, build_llm, load_llm_settings, load_store_settings
@@ -62,13 +65,16 @@ def main(
     if args.command == "load":
         return _run_load(release, fetch, stores)
 
-    if args.command in ("ask", "serve") and llm is None:
+    llm_label = type(llm).__name__
+    if args.command in ("ask", "serve", "eval") and llm is None:
         # Fail fast, before touching any data, if the model is not configured.
         try:
-            llm = build_llm(load_llm_settings(env))
+            settings = load_llm_settings(env)
+            llm = build_llm(settings)
         except ConfigError as exc:
             print(exc, file=sys.stderr)
             return 2
+        llm_label = settings.claude_model if settings.provider == "claude" else settings.provider
 
     if args.command == "search":
         try:
@@ -86,7 +92,7 @@ def main(
         print(_with_variable_hint(exc), file=sys.stderr)
         return 2
 
-    if args.command in ("index", "ask", "serve"):
+    if args.command in ("index", "ask", "serve", "eval"):
         try:
             vectors = _vector_store(stores, embed)
         except VectorStoreError as exc:
@@ -94,6 +100,8 @@ def main(
             return 2
         if args.command == "ask":
             return _run_ask(args.question, graph, vectors, llm)
+        if args.command == "eval":
+            return _run_eval(args, Answerer(vectors, graph, llm), llm_label)
         if args.command == "serve":
             run_server(create_app(Answerer(vectors, graph, llm)), args.host, args.port)
             return 0
@@ -130,6 +138,10 @@ def _build_parser() -> argparse.ArgumentParser:
     # Localhost only by default; exposing it is a deliberate choice.
     serve.add_argument("--host", default="127.0.0.1", help="address to listen on (default 127.0.0.1)")
     serve.add_argument("--port", type=int, default=8000, help="port to listen on (default 8000)")
+    evals = sub.add_parser("eval", help="score the eval questions against the configured model and save the results")
+    evals.add_argument("--cases", default="evals/questions.json", help="eval questions (default evals/questions.json)")
+    evals.add_argument("--corpus", default="tests/injection_corpus.json", help="injection attacks to add as cases (skipped if missing)")
+    evals.add_argument("--results-dir", default="eval-results", help="where results are saved (default eval-results, git-ignored)")
     sub.add_parser("technique", help="look up a technique by ID, e.g. T1566.001").add_argument("id")
     sub.add_parser("group", help="look up a group by name or alias, e.g. APT29").add_argument("name")
     return parser
@@ -153,6 +165,20 @@ def _run_ask(question: str, graph: AttackGraph, vectors: ChromaVectorStore, llm:
         return 2
     print(_format_answer(answer))
     return 0 if answer.status == "answered" else 1
+
+
+def _run_eval(args: argparse.Namespace, answerer: Answerer, label: str) -> int:
+    try:
+        cases = load_cases(args.cases) + injection_cases(args.corpus)
+        previous = latest_run(args.results_dir)
+        run = run_evals(answerer, cases, label=label, now=datetime.now(timezone.utc))
+    except (EvalError, VectorStoreError) as exc:
+        print(exc, file=sys.stderr)
+        return 2
+    path = save_run(run, args.results_dir)
+    print(summarize(run, previous))
+    print(f"Saved {path}")
+    return 0 if run.passed == run.total else 1
 
 
 def _format_answer(answer: Answer) -> str:
