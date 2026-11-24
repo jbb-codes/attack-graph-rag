@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Question answering over MITRE ATT&CK using a knowledge graph, vector search, and an LLM."
 requires-python = ">=3.11"
 dependencies = [
+    "anthropic>=2.13.0",
     "chromadb>=1.5.9",
     "rdflib>=7.0",
 ]
@@ -23,6 +24,9 @@ packages = ["src/attack_graph"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Live tests call the real Claude API (cost money), so they only run on request.
+addopts = "-m 'not live'"
 markers = [
+    "live: calls the real Claude API; run with -m live and ANTHROPIC_API_KEY set",
     "model: loads the real embedding model (one-time ~80 MB download, then cached)",
 ]
