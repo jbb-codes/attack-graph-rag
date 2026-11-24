@@ -1,5 +1,7 @@
 """Provider choice and startup validation, seen from the `ask` command."""
 
+import pytest
+
 from attack_graph.cli import main
 from fake_embedder import fake_word_embed
 
@@ -72,3 +74,20 @@ def test_commands_that_need_no_llm_ignore_llm_config(capsys):
     code, _, _ = run(capsys, "technique", "T1059.001", env={"ATTACK_GRAPH_LLM": "bogus"})
 
     assert code == 0
+
+
+@pytest.mark.parametrize("bad_url", [
+    "file:///etc/passwd",
+    "ftp://models.example/v1",
+    "http://user:hunter2@localhost:11434/v1",
+    "localhost:11434",
+])
+def test_local_model_address_must_be_plain_http_without_credentials(capsys, bad_url):
+    env = {"ATTACK_GRAPH_LLM": "local", "ATTACK_GRAPH_LOCAL_MODEL": "m", "ATTACK_GRAPH_LOCAL_URL": bad_url}
+
+    code, _, err = run(capsys, "ask", QUESTION, env=env)
+
+    assert code == 2
+    assert "ATTACK_GRAPH_LOCAL_URL" in err
+    assert "hunter2" not in err
+    assert bad_url not in err

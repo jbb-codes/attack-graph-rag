@@ -36,7 +36,8 @@ PINNED = Release(
 
 
 def http_fetch(url: str) -> bytes:
-    with urllib.request.urlopen(url, timeout=60) as response:
+    # callers pass the pinned https URL, so file: and custom schemes cannot reach here.
+    with urllib.request.urlopen(url, timeout=60) as response:  # nosec B310
         return response.read()
 
 

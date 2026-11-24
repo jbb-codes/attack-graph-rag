@@ -51,7 +51,8 @@ class SparqlServer:
             headers={"Content-Type": "application/n-triples"},
         )
         try:
-            with urllib.request.urlopen(request, timeout=_UPLOAD_TIMEOUT_SECONDS):
+            # URL is checked to be http(s) in config.py, so file: and custom schemes cannot reach here.
+            with urllib.request.urlopen(request, timeout=_UPLOAD_TIMEOUT_SECONDS):  # nosec B310
                 pass
         except (urllib.error.URLError, OSError) as exc:
             raise GraphServerError(f"The SPARQL server did not accept the graph ({type(exc).__name__}).") from exc
