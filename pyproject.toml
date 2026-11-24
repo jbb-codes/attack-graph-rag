@@ -6,14 +6,19 @@ requires-python = ">=3.11"
 dependencies = [
     "anthropic>=2.13.0",
     "chromadb>=1.5.9",
+    "fastapi>=0.165.0",
     "rdflib>=7.0",
+    "uvicorn>=0.30",
 ]
 
 [project.scripts]
 attack-graph = "attack_graph.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8.0"]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.0",
+]
 
 [build-system]
 requires = ["hatchling"]
