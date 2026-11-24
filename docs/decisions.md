@@ -94,3 +94,26 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Decision:** `LLM.complete(system, prompt) -> str`, with `LLMError` for failures. System rules are a fixed constant; the question and facts go in the prompt inside `<question>` and `<facts>` tags, described as data. `OfflineLLM` restates the first fact and cites it, so the CLI works without a key until the real client (issue #6).
 - **Why:** Small interface, easy to fake, easy to swap. Keeping user text out of the system message is the first step of prompt safety; deeper injection tests come in issue #8.
 - **Rejected:** wiring a real provider here (separate issue; needs config and secrets handling).
+
+## 2026-11-24: LLM provider chosen by environment variables, checked before `ask` runs
+
+- **Decision:** `ATTACK_GRAPH_LLM` picks `claude` (default), `local`, or `offline`. Claude needs `ANTHROPIC_API_KEY`; local needs `ATTACK_GRAPH_LOCAL_MODEL`. Settings are read and validated in `config.py` before any data is opened, so a missing value fails at once with a message that names the variable (never its value). The key is read only from the environment and hidden from the settings object's `repr`.
+- **Why:** Environment variables keep secrets out of code, images, and git, and the same image can run anywhere (stages 4 and 5). Checking first avoids loading data just to fail later. `offline` stays so the CLI and demos work with no key.
+- **Rejected:** a config file (secrets drift into git); defaulting to `offline` (a user could think they got real answers); a `.env` loader library (one more dependency; `.env.example` plus `source` is enough for now).
+
+## 2026-11-24: Claude client details
+
+- **Decision:** `ClaudeLLM` calls the official `anthropic` SDK with a default model of `claude-opus-5-5` (override with `ATTACK_GRAPH_CLAUDE_MODEL`), rules as the system prompt and question plus facts as the user message. Any SDK error becomes a bare `LLMError` with no details, and a `refusal` stop or empty reply is also an `LLMError`. `max_tokens` is 4096 because thinking tokens count toward it. No `thinking` or `temperature` is sent (current models reject or ignore them).
+- **Why:** Dropping the SDK's error text keeps request details and keys out of logs; `ask` then shows its generic error. Newest model by default; a cheaper one (for example `claude-sonnet-5-5`) is one variable away.
+- **Not done:** server-side refusal fallbacks. A refusal just becomes the generic error for now; revisit in the eval and security stages.
+
+## 2026-11-24: Local model uses the OpenAI-style chat endpoint over plain HTTP
+
+- **Decision:** `LocalLLM` posts to `<ATTACK_GRAPH_LOCAL_URL>/chat/completions` (default `http://localhost:11434/v1`, Ollama's address) using the standard library. The HTTP call is an injected function, so tests use a fake.
+- **Why:** Ollama, llama.cpp, and LM Studio all speak this format, and it adds no dependency.
+- **Rejected:** a vendor-specific local SDK (locks us to one tool).
+
+## 2026-11-24: Tests for real providers
+
+- **Decision:** Fast tests drive `ask` through a fake Anthropic client and a fake HTTP function, and test config through the `ask` command with an injected `env`. One test calls the real API; it is marked `live`, skipped without a key, and excluded by default (`addopts = -m 'not live'`). Run it with `uv run pytest -m live`.
+- **Why:** The normal run stays free, offline, and key-free. The live test costs a few cents and only proves the real wiring.
