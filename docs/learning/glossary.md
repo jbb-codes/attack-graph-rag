@@ -141,18 +141,23 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Kubernetes (k8s):** software that runs containers across machines and keeps them matching the YAML you gave it.
 - **kind:** Kubernetes in Docker; makes a throwaway local cluster for learning and tests.
 - **Cluster / node:** the whole Kubernetes system, and one machine inside it.
-- **Pod:** the smallest runnable unit: one or more containers that share a network.
-- **Deployment:** keeps a set number of identical pods running and replaces them on change or crash.
-- **Service (Kubernetes):** a stable name and address in front of changing pods. `ClusterIP` means inside-cluster only.
+- **Pod:** one running copy of your program (a container, plus its network). Pods are disposable; Kubernetes replaces them freely.
+- **Deployment:** a standing order: "keep 1 copy of this pod running". If the pod crashes or you edit the YAML, it makes a fresh one.
+- **Service (Kubernetes):** a permanent name for a group of pods. Pods get a new address every restart, so other programs call `http://sparql:7878` and Kubernetes forwards to whichever pod is alive. `ClusterIP` means reachable only inside the cluster.
 - **Namespace:** a named folder for cluster objects; deleting it deletes everything in it.
 - **ConfigMap:** plain, non-secret settings handed to pods as environment variables.
 - **Secret (Kubernetes):** sensitive settings handed to pods. Base64 only, not encryption.
-- **PVC (PersistentVolumeClaim):** a request for disk that outlives pods.
-- **Probe:** a health check. Readiness gates traffic, liveness triggers a restart, startup allows a slow boot.
+- **PVC (PersistentVolumeClaim):** a request for a disk, like "I need 2 GB to keep the graph". A pod's own files vanish when it is replaced; a PVC's disk stays, and the next pod gets it back.
+- **Probe:** a health check Kubernetes runs on a timer. Readiness: "ready for traffic?" Liveness: "alive? If not, restart." Startup: "still booting, wait."
 - **Job (Kubernetes):** a pod that runs once to completion.
 - **initContainer:** a container that must finish before the pod's main containers start.
 - **Label and selector:** key-value tags on objects, and the query a Deployment or Service uses to find them.
 - **Pod Security level `restricted`:** a namespace setting; Kubernetes refuses pods that are root or hold extra privileges.
 - **Port-forward:** `kubectl port-forward` opens a local port that tunnels to a Service or pod.
 - **Resource request / limit:** the memory and CPU a pod reserves, and the ceiling it is killed or throttled at.
+- **Volume:** a disk or folder mounted into a container. A PVC is how a pod asks for one that lasts.
+- **Cluster:** the whole Kubernetes system. **Node:** one machine in it. kind makes a one-node cluster inside Docker.
+- **YAML manifest:** a text file describing what you want ("a Deployment named app"). `kubectl apply -f` makes the cluster match it.
+- **MiniLM (`all-MiniLM-L6-v2`):** the small embedding model (about 80 MB) that turns text into 384 numbers, run on your machine.
+- **Oxigraph:** the program that stores the graph facts and answers SPARQL over HTTP.
 - **kubectl apply:** make the cluster match the YAML files given.

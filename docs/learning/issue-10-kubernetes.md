@@ -65,6 +65,21 @@ flowchart TD
   class SVC,APP,SP,CH,JOB code
 ```
 
+## What each box does
+
+1. **You, port-forward:** the cluster is closed from outside. `kubectl port-forward` opens a tunnel from `localhost:8000` into it.
+2. **Service app:** a permanent name for the API. The app pod gets a new address every time it restarts, so the Service gives everyone one name that always points at the live pod. You can think of it as a contact entry that always rings the current phone.
+3. **app pod:** runs `attack-graph serve`. It takes your question, searches, and asks Claude. It stores no data.
+4. **sparql pod (Oxigraph):** the graph database. It holds exact facts, like which group uses which technique.
+5. **chroma pod:** the vector database. It finds techniques by meaning. The vectors are made by MiniLM, a small model that turns text into numbers.
+6. **setup Job:** runs once. It loads the facts into sparql, embeds every technique into chroma, then exits.
+7. **ConfigMap:** plain settings, like where sparql and chroma live.
+8. **Secret:** your API key, kept out of the image and out of git.
+9. **PVC (sparql-data, chroma-data):** a request for a disk that outlives the pod. Delete the pod and the new one gets the same disk back, so the data is still there.
+10. **PVC model-cache:** the same idea for the ~80 MB MiniLM download, so a restart does not fetch it again.
+
+**One question, start to finish:** you ask, the Service sends it to the app pod, the app embeds it and asks chroma for the closest techniques, asks sparql for their exact facts, and sends both to Claude, which writes the answer.
+
 ## Deploy it (step by step)
 
 Needs Docker, [kind](https://kind.sigs.k8s.io/) and kubectl. Run from the repo root.
