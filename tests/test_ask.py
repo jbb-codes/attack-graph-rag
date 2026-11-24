@@ -6,6 +6,7 @@ from attack_graph.answer import MAX_QUESTION_CHARS, Answerer
 from attack_graph.graph import AttackGraph
 from attack_graph.llm import LLMError
 from attack_graph.vector import ChromaVectorStore, VectorStoreError, default_embed
+from answerer_factory import build
 from fake_embedder import fake_word_embed
 from fake_llm import FakeLLM, ScriptedLLM
 
@@ -16,12 +17,6 @@ POWERSHELL_Q = "Which techniques use PowerShell to run commands and scripts on W
 def graph():
     with as_file(files("attack_graph") / "data" / "attack_fixture.json") as path:
         return AttackGraph.from_stix_file(path)
-
-
-def build(graph, llm, embed=fake_word_embed, tmp=None):
-    store = ChromaVectorStore(tmp, embed=embed)
-    store.index(graph.technique_docs())
-    return Answerer(vectors=store, graph=graph, llm=llm)
 
 
 @pytest.fixture
