@@ -1,0 +1,71 @@
+# The API: `attack-graph serve`. It holds no data itself; it talks to sparql and chroma
+# through their Services, so it is safe to restart or replace at any time.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: attack-graph
+  labels: {app: app}
+spec:
+  replicas: 1   # model-cache is a ReadWriteOnce disk, and the rate limiter is per process
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: app}
+  template:
+    metadata:
+      labels: {app: app}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: app
+          image: attack-graph-rag:local
+          imagePullPolicy: IfNotPresent
+          # 0.0.0.0 is right inside a pod: the Service decides who can reach it.
+          command: [attack-graph, serve, --host, 0.0.0.0, --port, "8000"]
+          envFrom:
+            - configMapRef: {name: attack-graph-config}
+          env:
+            # The key comes from the Secret, never from the image or these files.
+            # optional: with ATTACK_GRAPH_LLM=offline you can skip creating the Secret.
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef: {name: attack-graph-secrets, key: ANTHROPIC_API_KEY, optional: true}
+          ports:
+            - {name: http, containerPort: 8000}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 250m, memory: 768Mi}
+            limits: {memory: 2Gi}   # the embedding model is loaded in memory
+          # startupProbe gives a slow first boot (model load) up to 5 minutes before
+          # the liveness probe starts judging.
+          startupProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - {name: model-cache, mountPath: /home/app/.cache}
+            - {name: tmp, mountPath: /tmp}   # the root filesystem is read-only; /tmp is scratch space
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim: {claimName: model-cache}
+        - name: tmp
+          emptyDir: {}   # a throwaway folder that lives as long as the pod
