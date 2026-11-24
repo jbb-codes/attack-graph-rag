@@ -1,0 +1,77 @@
+# A Job runs a pod to completion once (unlike a Deployment, which keeps pods running).
+# This one fills the graph and the vector index. Safe to re-run: the load replaces the
+# graph and the index is rebuilt, so nothing is duplicated.
+# A finished Job cannot be edited; to run it again: kubectl -n attack-graph delete job setup
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup
+  namespace: attack-graph
+spec:
+  backoffLimit: 4   # retry a failed pod up to 4 times
+  template:
+    metadata:
+      labels: {app: setup}
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      # initContainers run first, one after another, and must succeed before the main container starts.
+      # This one waits until both servers answer, like `depends_on: service_healthy` in Compose.
+      initContainers:
+        - name: wait-for-stores
+          image: attack-graph-rag:local
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - -c
+            - |
+              import time, urllib.request
+              for url in ("http://chroma:8000/api/v2/heartbeat", "http://sparql:7878/query?query=ASK%7B%7D"):
+                  for _ in range(120):
+                      try:
+                          urllib.request.urlopen(url, timeout=2)
+                          break
+                      except Exception:
+                          time.sleep(2)
+                  else:
+                      raise SystemExit(f"timed out waiting for {url}")
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {memory: 128Mi}
+      containers:
+        - name: setup
+          image: attack-graph-rag:local
+          imagePullPolicy: IfNotPresent
+          command: [sh, -c, "attack-graph load && attack-graph index"]
+          envFrom:
+            - configMapRef: {name: attack-graph-config}
+          securityContext:
+            allowPrivilegeEscalation: false
+            # Like Compose, the one-off job keeps a writable root filesystem (download and
+            # index tools write scratch files); it still runs non-root with no capabilities.
+            readOnlyRootFilesystem: false
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 250m, memory: 768Mi}
+            limits: {memory: 2Gi}
+          volumeMounts:
+            - {name: app-data, mountPath: /app/data}
+            - {name: model-cache, mountPath: /home/app/.cache}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: app-data
+          persistentVolumeClaim: {claimName: app-data}
+        - name: model-cache
+          persistentVolumeClaim: {claimName: model-cache}
+        - name: tmp
+          emptyDir: {}
