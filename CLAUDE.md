@@ -9,7 +9,7 @@ Question-answering service over MITRE ATT&CK Enterprise. Vector search (Chroma) 
 
 ## Current stage
 
-Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 done: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API (issue #7). Stage 4 done: Docker and Compose (issue #9; `scripts/compose-smoke.sh` passes). Stage 5 written: Kubernetes manifests in `k8s/` (issue #10; no cluster tooling was available, so run `scripts/k8s-smoke.sh` before relying on them). Stage 6 started: prompt-injection defenses (issue #8); eval set and runner (issue #11; written offline, not yet run against the real model). Security checks (issue #12): security-event logging, scan script and checklist review done; **container image scan not yet run** (needs Docker and trivy, see `docs/security/scan-results.md`). Stages, each shippable on its own:
+Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 done: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API (issue #7). Stage 4 done: Docker and Compose (issue #9; `scripts/compose-smoke.sh` passes). Stage 5 written: Kubernetes manifests in `k8s/` (issue #10; no cluster tooling was available, so run `scripts/k8s-smoke.sh` before relying on them). Stage 6 done in code and docs: prompt-injection defenses (issue #8); eval set and runner (issue #11; written offline, not yet run against the real model); security checks (issue #12; **container image scan not yet run**, needs Docker and trivy, see `docs/security/scan-results.md`); documentation (issue #13): `README.md`, `docs/operations.md` (with a verification-status table), decisions log pass. Still needing the author to run: Kubernetes, real-model `ask` and evals, image scan. Stages, each shippable on its own:
 
 1. Graph load and SPARQL queries (plain Python)
 2. Vector store and retrieval (plain Python)
@@ -27,7 +27,7 @@ Update this section when a stage starts or finishes.
 - One test seam: `ask(question)`. Test external behavior through it; do not test internals.
 - Fast tests use a small ATT&CK fixture and a fake LLM. Evals use the real LLM, run on demand, and stay out of the normal test run.
 - Public repo: no secrets, no personal data in code, docs, or commits.
-- README is deliberately deferred to stage 6.
+- README and operations guide exist (stage 6). Keep the verification-status tables in `README.md` and `docs/operations.md` in step with reality when something is run.
 
 ## Definition of done for an issue
 
