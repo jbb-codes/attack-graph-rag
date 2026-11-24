@@ -1,0 +1,34 @@
+# A Service is a stable name and address in front of pods. Pods come and go and change IP
+# addresses; the Service finds them by label (selector) and keeps the name fixed.
+# ClusterIP (the default) means "reachable only from inside the cluster".
+apiVersion: v1
+kind: Service
+metadata:
+  name: sparql
+  namespace: attack-graph
+spec:
+  selector: {app: sparql}
+  ports:
+    - {name: http, port: 7878, targetPort: http}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chroma
+  namespace: attack-graph
+spec:
+  selector: {app: chroma}
+  ports:
+    - {name: http, port: 8000, targetPort: http}
+---
+# Also ClusterIP: nothing is exposed outside the cluster. To use the API from your machine,
+# run `kubectl -n attack-graph port-forward svc/app 8000:8000`, which listens on 127.0.0.1 only.
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: attack-graph
+spec:
+  selector: {app: app}
+  ports:
+    - {name: http, port: 8000, targetPort: http}

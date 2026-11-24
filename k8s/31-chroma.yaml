@@ -1,0 +1,57 @@
+# The Chroma vector server. Runs from the same image as the app (the server ships in the
+# chromadb package), so one build and one set of pinned dependencies cover both.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chroma
+  namespace: attack-graph
+  labels: {app: chroma}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}   # single writer on one disk, as for sparql
+  selector:
+    matchLabels: {app: chroma}
+  template:
+    metadata:
+      labels: {app: chroma}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: chroma
+          image: attack-graph-rag:local
+          imagePullPolicy: IfNotPresent
+          command: [chroma, run, --path, /chroma-data, --host, 0.0.0.0, --port, "8000"]
+          envFrom:
+            - configMapRef: {name: attack-graph-config}
+          ports:
+            - {name: http, containerPort: 8000}
+          securityContext:
+            allowPrivilegeEscalation: false
+            # Chroma writes scratch files at startup; like Compose, its root filesystem stays writable.
+            readOnlyRootFilesystem: false
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 1Gi}
+          readinessProbe:
+            httpGet: {path: /api/v2/heartbeat, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: {path: /api/v2/heartbeat, port: http}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          volumeMounts:
+            - {name: data, mountPath: /chroma-data}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: chroma-data}
