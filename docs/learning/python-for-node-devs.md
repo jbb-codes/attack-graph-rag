@@ -87,3 +87,10 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `@pytest.fixture` returning a function makes a test factory; tests take it as a parameter by name.
 - `caplog` is a pytest fixture holding captured log lines, for asserting what was (not) logged.
 - `logging.getLogger(name)` then `log.warning("x %s", v)` logs lazily, like a leveled `console`.
+- `str.replace` is `String.replaceAll` with plain text: `s.replace("<", "&lt;")` changes every match.
+- `re.sub(pattern, " ", s)` is `s.replace(/pattern/g, " ")`. `" ".join(s.split())` collapses whitespace runs.
+- `if len(x := f(y)) >= 25` is the walrus operator: assign and use a value in one expression.
+- `any(rule in text for rule in rules)` is `rules.some(r => text.includes(r))`.
+- `pytest.param(value, id="name")` names one case of `@pytest.mark.parametrize`, like a test title in `it.each`.
+- `Path(__file__).parent` is the folder of this file, like `__dirname`. `.read_text()` reads it as a string.
+- A module-level `assert` inside a helper (`assert len(found) == 1, "message"`) fails the calling test with that message.

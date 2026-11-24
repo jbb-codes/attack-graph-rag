@@ -102,3 +102,16 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Embed (verb):** turn a piece of text into its vector of numbers. We embed every technique at `index` time and the question at search time.
 - **MiniLM (`all-MiniLM-L6-v2`):** the small model that makes our embeddings (384 numbers per text). Runs on your CPU, no key, one ~80 MB download.
 - **Citation check:** after the LLM replies, we keep only technique IDs we really retrieved. A reply citing none is thrown away.
+
+## Prompt injection
+
+- **Prompt injection:** text that tries to give the model new orders ("ignore your rules"). The model cannot always tell data from instructions.
+- **Untrusted data:** any text we did not write: the question, and the retrieved ATT&CK text.
+- **System prompt:** the fixed rules sent apart from user text.
+- **Delimiter breakout:** untrusted text writing `</facts>` to end its block early and pose as rules.
+- **Escaping:** replacing `<` and `>` with `&lt;` and `&gt;` so text cannot form a tag.
+- **Prompt leak:** the model repeating its rules back to the user.
+- **Output filter:** a check on the reply before the user sees it.
+- **Poisoned data:** retrieved text with an attack hidden inside.
+- **Injection corpus:** a file of attack strings reused by many tests.
+- **Defense in depth:** several weak layers together, since none is a guarantee.
