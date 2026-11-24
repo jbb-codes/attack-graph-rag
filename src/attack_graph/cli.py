@@ -41,7 +41,8 @@ def _uvicorn_run(app: FastAPI, host: str, port: int) -> None:
     # Imported here so other commands never pay for loading the server.
     import uvicorn
 
-    uvicorn.run(app, host=host, port=port)
+    # The access log prints every client address; security events use opaque ids instead.
+    uvicorn.run(app, host=host, port=port, access_log=False)
 
 
 def main(
