@@ -38,10 +38,17 @@ flowchart TD
   class B,C,E code
 ```
 
-1. `index` reads the techniques from the loaded graph (or the fixture).
-2. Each one becomes the text `"Name. Description"`, which the embedding model turns into 384 numbers.
-3. Chroma stores the numbers in `data/chroma`. The collection is rebuilt every time, so re-running never duplicates.
-4. `search` embeds your question the same way and asks Chroma for the nearest techniques.
+Reading the diagram, box by box:
+
+- **Saved graph:** the ATT&CK facts from issue #3. It is the source of truth for which techniques exist.
+- **technique_docs:** one SPARQL query pulls every technique's ID, name, and description into a plain list. Nothing is embedded yet.
+- **index:** glues each technique into one text, `"Name. Description"`. The embedding model turns each text into 384 numbers. It stores numbers, ID, and name in Chroma. It deletes the old collection first, so re-running never duplicates.
+- **Chroma folder:** the stored vectors on disk. `index` writes it and `search` reads it, so `search` never touches the graph.
+- **Question:** your plain-English text, like "criminals lock my files and demand payment".
+- **search:** embeds the question with the same model (vectors only compare fairly if the same model made both), then asks Chroma for the nearest vectors by cosine distance. Blank questions and bad limits are rejected here.
+- **Closest techniques:** ID, name, and distance, nearest first. The CLI prints ID and name.
+
+Techniques are embedded once, at `index` time. At `search` time only the question is embedded.
 
 No LLM is involved anywhere here.
 
