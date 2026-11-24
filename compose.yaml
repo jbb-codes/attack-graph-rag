@@ -1,0 +1,79 @@
+# One command starts everything:   docker compose up -d --wait
+# Secrets come from your shell or a git-ignored .env file, never from this file.
+
+x-app: &app
+  build: .
+  image: attack-graph-rag:local
+  # The same non-root user as the Dockerfile, enforced again here.
+  user: "10001:10001"
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  restart: unless-stopped
+  environment: &base-env
+    ANONYMIZED_TELEMETRY: "False"   # Chroma would otherwise send usage stats
+
+services:
+  sparql:
+    build: deploy/oxigraph
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    volumes: [sparql-data:/data]   # the graph survives restarts here
+
+  chroma:
+    <<: *app
+    # The Chroma server ships inside our image (it is part of the chromadb package).
+    command: ["chroma", "run", "--path", "/chroma-data", "--host", "0.0.0.0", "--port", "8000"]
+    volumes: [chroma-data:/chroma-data]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v2/heartbeat', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+
+  # Runs once to fill the graph and the vector index, then exits. Safe to re-run.
+  setup:
+    <<: *app
+    restart: "no"
+    command: ["sh", "-c", "attack-graph load && attack-graph index"]
+    healthcheck: {disable: true}   # a one-off job has no "ready" state
+    environment: &stores
+      <<: *base-env
+      ATTACK_GRAPH_SPARQL_URL: http://sparql:7878
+      ATTACK_GRAPH_CHROMA_URL: http://chroma:8000
+    volumes:
+      - app-data:/app/data              # the ~55 MB ATT&CK download is cached here
+      - model-cache:/home/app/.cache    # the ~80 MB embedding model is cached here
+    depends_on:
+      sparql: {condition: service_healthy}
+      chroma: {condition: service_healthy}
+
+  app:
+    <<: *app
+    read_only: true            # the app only reads files: lock its filesystem...
+    tmpfs: [/tmp]              # ...except /tmp, which lives in memory
+    environment:
+      <<: *stores
+      ATTACK_GRAPH_LLM: ${ATTACK_GRAPH_LLM:-claude}
+      ATTACK_GRAPH_CLAUDE_MODEL: ${ATTACK_GRAPH_CLAUDE_MODEL:-claude-opus-5-5}
+      # Passed through from your shell or .env. Empty if unset, and the app then refuses to start.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ATTACK_GRAPH_LOCAL_MODEL: ${ATTACK_GRAPH_LOCAL_MODEL:-}
+      ATTACK_GRAPH_LOCAL_URL: ${ATTACK_GRAPH_LOCAL_URL:-http://host.docker.internal:11434/v1}
+    volumes:
+      - model-cache:/home/app/.cache
+    ports:
+      - "127.0.0.1:${ATTACK_GRAPH_PORT:-8000}:8000"   # reachable from this machine only
+    depends_on:
+      sparql: {condition: service_healthy}
+      chroma: {condition: service_healthy}
+      setup: {condition: service_completed_successfully}
+
+volumes:
+  sparql-data:
+  chroma-data:
+  app-data:
+  model-cache:
