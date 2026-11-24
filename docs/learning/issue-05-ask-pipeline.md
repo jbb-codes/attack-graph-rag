@@ -21,20 +21,26 @@ config:
 flowchart TD
   Q["`**Question**
   plain English`"] --> C["`**Clean + check**
-  answer.py`"]
+  answer.py
+  reject bad input`"]
   C -->|empty or too long| X["`**invalid**
   no LLM call`"]
   C --> S["`**Vector search**
+  vector.py
   embed, find nearest`"]
   S -->|all too far| N["`**not_found**
   no LLM call`"]
   S --> G["`**Graph facts**
+  graph.py
   SPARQL, exact data`"]
   G --> P["`**Prompt**
+  answer.py
   rules + question + facts`"]
   P --> L["`**LLM**
-  llm.py, fake in tests`"]
+  llm.py
+  fake in tests`"]
   L --> V["`**Check citations**
+  answer.py
   drop IDs we never sent`"]
   V --> A["`**Answer**
   text + cited IDs`"]
