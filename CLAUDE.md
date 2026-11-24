@@ -9,7 +9,7 @@ Question-answering service over MITRE ATT&CK Enterprise. Vector search (Chroma) 
 
 ## Current stage
 
-Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 in progress: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API is next (issue #7). Stages, each shippable on its own:
+Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 in progress: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API done (issue #7); Stage 3 complete. Stages, each shippable on its own:
 
 1. Graph load and SPARQL queries (plain Python)
 2. Vector store and retrieval (plain Python)
@@ -50,6 +50,7 @@ Plain English, one line per entry, written for a Node/TS developer new to Python
 - Embed all techniques for search (first run downloads the ~80 MB embedding model once): `uv run attack-graph index`
 - Find techniques by meaning: `uv run attack-graph search "how do attackers use email?" --limit 5`
 - Ask a question (cites technique IDs; needs `index` first; needs `ANTHROPIC_API_KEY`, or `ATTACK_GRAPH_LLM=offline` / `local`, see `.env.example`): `uv run attack-graph ask "how do attackers get in through email?"`
+- Run the HTTP API (same config as `ask`; needs `index` first; binds to 127.0.0.1:8000): `uv run attack-graph serve`, then `curl -s localhost:8000/ask -d '{"question": "how do attackers get in through email?"}'`; health check at `GET /health`. Options: `--host`, `--port`
 - Real-Claude test (opt-in, costs a little, needs `ANTHROPIC_API_KEY`): `uv run pytest -m live`
 - Use another STIX file (overrides loaded data): `uv run attack-graph --data path/to/bundle.json technique T1566`
 
