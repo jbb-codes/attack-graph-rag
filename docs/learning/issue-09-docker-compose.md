@@ -6,14 +6,6 @@ Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-nod
 
 Checked: `scripts/compose-smoke.sh` passes. It caught one real bug: a volume mounted on a folder that does not exist in the image is owned by root, so the non-root Chroma user could not write to it. The fix is to create the folder in the Dockerfile, owned by `app`.
 
-## New ideas in plain English
-
-- **Image vs container:** an image is the packed program; a container is one running copy. `docker compose up` builds the image once, then starts containers from it.
-- **Volume:** the container's own files vanish when it is removed. A volume is a folder Docker keeps aside and mounts back in, so the graph and vectors survive.
-- **Healthcheck:** Docker runs a tiny command every few seconds. Exit 0 means "ready". Compose uses this so `app` only starts after the databases answer.
-- **Compose:** one YAML file naming each container (a "service"), its volumes, ports and start order.
-- **Non-root:** the program runs as user 10001, not root, so a break-in cannot change the system.
-
 ## The big picture
 
 **Key**
