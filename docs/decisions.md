@@ -31,6 +31,7 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Decision:** Build in six shippable stages, plain Python before Docker, Kubernetes late. README is written in stage 6.
 - **Why:** Avoid debugging several new technologies at once. A README describes a finished system, so writing it early means rewriting it.
 - **Fallback:** If Kubernetes proves too hard, stages 1 to 4 plus documentation are still a complete portfolio project.
+- **Update 2026-11-24:** README and operations guide were written in stage 6 as planned (issue #13). Docker, Kubernetes and a real model were not available while building, so those parts exist but are unverified; see the last entry.
 
 ## 2026-11-23: Fixture is a STIX bundle, loaded through the real loader
 
@@ -80,7 +81,7 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 
 - **Decision:** Vector hits farther than cosine distance 0.75 are dropped. If none remain, the answer is `not_found` and the LLM is not called. Top 5 hits are considered.
 - **Why:** Measured on the fixture with the real model: on-topic questions score 0.38 to 0.58, off-topic ones 0.87 and up. 0.75 sits in the gap. The value is a parameter, and must be re-checked if the embedding model changes.
-- **Known limit:** Vague but on-topic questions near the gap could be refused; the eval set (issue #11) is where to tune this.
+- **Known limit:** Vague but on-topic questions near the gap could be refused; the eval set (issue #11) is where to tune this. **Still untuned:** no real-model eval run has happened.
 - **Tests:** fast tests use a word-based fake embedder where unrelated texts are exactly distance 1.0; one `model` test checks the threshold with the real model.
 
 ## 2026-11-24: Only retrieved IDs count as citations
@@ -89,9 +90,9 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Why:** The service promises cited, checkable answers. A reply citing nothing we supplied is ungrounded or invented, so it is not shown.
 - **Rejected:** trusting the model's own list of citations; showing uncited answers with a warning.
 
-## 2026-11-24: LLM interface is one method; CLI uses an offline stand-in for now
+## 2026-11-24: LLM interface is one method; `offline` stand-in kept for key-free use
 
-- **Decision:** `LLM.complete(system, prompt) -> str`, with `LLMError` for failures. System rules are a fixed constant; the question and facts go in the prompt inside `<question>` and `<facts>` tags, described as data. `OfflineLLM` restates the first fact and cites it, so the CLI works without a key until the real client (issue #6).
+- **Decision:** `LLM.complete(system, prompt) -> str`, with `LLMError` for failures. System rules are a fixed constant; the question and facts go in the prompt inside `<question>` and `<facts>` tags, described as data. `OfflineLLM` restates the first fact and cites it, so the CLI works without a key. The real clients arrived in issue #6 (next entries); `offline` stays for demos, docs and smoke scripts, and only ever restates one fact, so it says nothing about answer quality.
 - **Why:** Small interface, easy to fake, easy to swap. Keeping user text out of the system message is the first step of prompt safety; deeper injection tests come in issue #8.
 - **Rejected:** wiring a real provider here (separate issue; needs config and secrets handling).
 
@@ -105,7 +106,7 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 
 - **Decision:** `ClaudeLLM` calls the official `anthropic` SDK with a default model of `claude-opus-5-5` (override with `ATTACK_GRAPH_CLAUDE_MODEL`), rules as the system prompt and question plus facts as the user message. Any SDK error becomes a bare `LLMError` with no details, and a `refusal` stop or empty reply is also an `LLMError`. `max_tokens` is 4096 because thinking tokens count toward it. No `thinking` or `temperature` is sent (current models reject or ignore them).
 - **Why:** Dropping the SDK's error text keeps request details and keys out of logs; `ask` then shows its generic error. Newest model by default; a cheaper one (for example `claude-sonnet-5-5`) is one variable away.
-- **Not done:** server-side refusal fallbacks. A refusal just becomes the generic error for now; revisit in the eval and security stages.
+- **Not done:** server-side refusal fallbacks. A refusal just becomes the generic error for now; revisit in the eval and security stages. **Still open** after both: no fallback was added.
 
 ## 2026-11-24: Local model uses the OpenAI-style chat endpoint over plain HTTP
 
@@ -128,7 +129,7 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 
 - **Decision:** Body limit 4 KB (checked from `Content-Length` and again on the bytes read; 413). Rate limit is a sliding window per client address, 20 requests per 60 seconds on `/ask` only (429 plus `Retry-After`); the clock is injected so tests are exact. Security headers on every response (`nosniff`, `X-Frame-Options: DENY`, `Cache-Control: no-store`, `Referrer-Policy`, a CSP of `default-src 'none'`). `/docs` and `/openapi.json` are off. Logs record only the exception type, never the message or question.
 - **Why:** The LLM costs money and the service is public, so abuse limits matter. Unexpected errors are caught inside the route (not by a global handler) so they still get the shared shape and the headers. `/health` is exempt from the limit so probes never get blocked.
-- **Known limits:** The limiter lives in one process's memory, so it resets on restart and is per replica; the client address is the direct peer, so behind a proxy everyone looks the same (revisit with Compose and Kubernetes, stages 4 and 5). A chunked upload with no `Content-Length` is fully read before the size check; a reverse proxy should cap it. No HSTS: it only means something over HTTPS, which TLS termination will own. No authentication yet.
+- **Known limits:** The limiter lives in one process's memory, so it resets on restart and is per replica; the client address is the direct peer, so behind a proxy everyone looks the same. Confirmed in Compose and Kubernetes: Docker's gateway or the port-forward address stands for everyone. Still open (listed in the security checklist review). A chunked upload with no `Content-Length` is fully read before the size check; a reverse proxy should cap it. No HSTS: it only means something over HTTPS, which TLS termination will own. No authentication yet.
 - **Rejected:** a rate-limit library (one more dependency for about 20 lines); limiting `/health`.
 
 ## 2026-11-24: Prompt-injection defenses (what we do, and what we do not promise)
@@ -166,7 +167,7 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Startup order:** Kubernetes has no `depends_on`. The setup Job's init container waits for both stores to answer. The app does not wait for the Job: it becomes ready as soon as the API answers, and `/ask` returns the API's "not ready" error until the index exists. The smoke script waits for the Job explicitly.
 - **Hardening:** namespace enforces the `restricted` Pod Security level (so Kubernetes rejects any pod that is not non-root, drops no capabilities, or lacks a seccomp profile). Every container: uid 10001, no privilege escalation, all capabilities dropped, memory request and limit, no service account token. Read-only root filesystem on `app`, `sparql` and the init container; `chroma` and the setup job keep it writable, as in Compose.
 - **Access:** all Services are ClusterIP. Use `kubectl port-forward svc/app 8000:8000` (listens on 127.0.0.1). No Ingress yet: it would need a controller and TLS, which is beyond a local learning cluster.
-- **Known limits:** no NetworkPolicy (kind's default network plugin does not enforce them, so they would look protective and do nothing); Secrets are base64 only unless the cluster encrypts at rest; CPU is requested but not limited, to avoid throttling the model; the rate limiter sees the port-forward or node address as the client; images are not scanned (issue #12).
+- **Known limits:** no NetworkPolicy (kind's default network plugin does not enforce them, so they would look protective and do nothing); Secrets are base64 only unless the cluster encrypts at rest; CPU is requested but not limited, to avoid throttling the model; the rate limiter sees the port-forward or node address as the client; images are still not scanned (see the security entry).
 - **Not verified:** neither Docker, kind nor kubectl was installed where this was written, so no manifest has met a real cluster. Offline tests prove the YAML parses and says the safe things; `scripts/k8s-smoke.sh` is the real check. Likeliest surprises: the read-only filesystem on `app`, the memory limit for the embedding model, and local-path volume permissions.
 - **Rejected:** Helm or Kustomize (the issue says plain manifests, and fewer layers to learn); StatefulSets for the databases (a Deployment with one replica and a PVC is simpler and enough); minikube; a registry for local images; exposing the app with NodePort or Ingress.
 
@@ -195,3 +196,12 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Checklist review:** `docs/security/checklist-review.md` marks each item pass, fail or n/a with evidence. Many are n/a because the spec has no accounts or authentication. Open gaps are listed there (no TLS or auth on our API, Chroma advisories, per-peer rate limit, no NetworkPolicy).
 - **Not verified:** Docker was not available, so the two images were never scanned. The results page holds an empty table and the command to fill it. No OS-package vulnerability data exists yet.
 - **Rejected:** logging the raw address or a plain unkeyed hash (a hash of an IPv4 address can be reversed by trying all 4 billion); JSON logs; a log-scrubbing filter (safer to never pass sensitive data in than to try to remove it after); failing the scan on the ChromaDB advisories (would make the check permanently red with nothing to do about it).
+
+## 2026-11-24: Documentation, ATT&CK credit, and honest verification status
+
+- **Decision:** `README.md` holds the pitch, a Mermaid architecture diagram, a demo, a verification summary, future improvements and the ATT&CK credit. `docs/operations.md` holds run (plain, Compose, Kubernetes), configuration, troubleshooting, scans, and a verification-status table. Both carry a verification status, and `CLAUDE.md` points at them.
+- **Demo uses real output only:** every command shown was run for the README, on the bundled fixture with the `offline` answerer. No real-model output appears, because none was produced. The README says so next to the demo.
+- **Verified vs unverified is stated, not implied:** verified are the offline tests, CLI and API in offline mode, the native run against real Oxigraph and Chroma servers (issue #9), and the source scans. Written but never run are the Dockerfiles, Compose stack, Kubernetes manifests and image scan. Not run against a real model are `ask` and the evals. Each unverified item names the script or command that checks it, so the first person with Docker, a cluster or a key can close the gap and update the tables.
+- **ATT&CK credit and licensing:** ATT&CK data is downloaded at load time, not stored in the repo (the fixture is hand-written). The README quotes MITRE's required copyright line and states the grant, taken from the Terms of Use page (`attack.mitre.org/resources/legal-and-branding/terms-of-use/`, checked 2026-11-24), notes the trademark, and says the project is not affiliated with MITRE. The year in the notice changes, so re-check it when the data version is bumped.
+- **No licence for our own code yet:** none was chosen and none was added. This is the author's call, and the README says so. Without one, others have no permission to reuse the code.
+- **Rejected:** showing invented "realistic" model output in the demo (it would claim something never run); a docs-linking test (the fast suite stays about behavior, and the links are few).
