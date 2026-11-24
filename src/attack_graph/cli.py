@@ -7,6 +7,7 @@ from importlib.resources import as_file, files
 from pathlib import Path
 
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
+from attack_graph.vector import ChromaVectorStore, Embed, VectorStoreError, default_embed
 from attack_graph.release import (
     PINNED,
     Fetch,
@@ -19,6 +20,7 @@ from attack_graph.release import (
 
 DATA_DIR = Path("data")
 STORE = DATA_DIR / "attack-graph.nt"
+VECTOR_DIR = DATA_DIR / "chroma"
 
 
 def main(
@@ -26,11 +28,22 @@ def main(
     *,
     fetch: Fetch = http_fetch,
     release: Release = PINNED,
+    embed: Embed = default_embed,
 ) -> int:
     args = _build_parser().parse_args(argv)
 
     if args.command == "load":
         return _run_load(release, fetch)
+
+    if args.command == "search":
+        try:
+            hits = ChromaVectorStore(VECTOR_DIR, embed).search(args.question, args.limit)
+        except VectorStoreError as exc:
+            print(exc, file=sys.stderr)
+            return 2
+        for hit in hits:
+            print(f"{hit.attack_id} {hit.name}")
+        return 0
 
     try:
         graph = _load(args.data)
@@ -38,6 +51,12 @@ def main(
         print(exc, file=sys.stderr)
         return 2
 
+    if args.command == "index":
+        store = ChromaVectorStore(VECTOR_DIR, embed)
+        docs = graph.technique_docs()
+        store.index(docs)
+        print(f"Indexed {len(docs)} techniques into {VECTOR_DIR}")
+        return 0
     if args.command == "technique":
         technique = graph.technique(args.id)
         if technique is None:
@@ -58,6 +77,10 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--data", help="STIX JSON file to use (default: data loaded by 'load', else bundled test fixture)")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("load", help="download the pinned ATT&CK Enterprise release and load it")
+    sub.add_parser("index", help="embed every technique so 'search' can find them by meaning")
+    search = sub.add_parser("search", help="find techniques by meaning, e.g. 'how do attackers use email?'")
+    search.add_argument("question")
+    search.add_argument("--limit", type=int, default=5, help="how many techniques to show (default 5)")
     sub.add_parser("technique", help="look up a technique by ID, e.g. T1566.001").add_argument("id")
     sub.add_parser("group", help="look up a group by name or alias, e.g. APT29").add_argument("name")
     return parser
