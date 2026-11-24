@@ -4,7 +4,7 @@ What was built: one command, `docker compose up -d --wait`, starts the API, a SP
 
 Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-node-devs.md), [issue #7](issue-07-http-api.md), [decisions](../decisions.md).
 
-Note: the Docker files were written on a machine without Docker. The Python side was checked against real Oxigraph and Chroma servers run natively; the images and Compose file still need `scripts/compose-smoke.sh` to be run once.
+Checked: `scripts/compose-smoke.sh` passes. It caught one real bug: a volume mounted on a folder that does not exist in the image is owned by root, so the non-root Chroma user could not write to it. The fix is to create the folder in the Dockerfile, owned by `app`.
 
 ## New ideas in plain English
 
