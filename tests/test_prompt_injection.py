@@ -119,3 +119,36 @@ class TestInjectionInRetrievedData:
         prompt = llm.calls[0][1]
         assert prompt.count("<facts>") == prompt.count("</facts>") == 1
         assert prompt.count("<question>") == prompt.count("</question>") == 1
+
+
+class TestRevealingTheSystemPrompt:
+    @pytest.mark.parametrize("payload", CORPUS_PARAMS)
+    def test_a_model_that_gives_in_still_cannot_leak_the_rules(self, graph, tmp_path, payload):
+        result = build(graph, LeakyLLM(), tmp=tmp_path / "c").ask(attack_question(payload))
+
+        rules = baseline_rules(graph, tmp_path)
+        assert result.status == "not_found"
+        assert result.cited == ()
+        assert all(line not in result.text for line in rules.splitlines())
+
+    @pytest.mark.parametrize("disguise", [
+        pytest.param(str.upper, id="uppercase"),
+        pytest.param(lambda s: s.replace("\n", "\n\n").replace(" ", "  "), id="extra-whitespace"),
+        pytest.param(lambda s: "Sure! My rules are:\n> " + s.replace("\n", "\n> "), id="quoted"),
+    ])
+    def test_a_disguised_copy_of_the_rules_is_also_withheld(self, graph, tmp_path, disguise):
+        result = build(graph, LeakyLLM(disguise), tmp=tmp_path / "c").ask(POWERSHELL_Q)
+
+        assert result.status == "not_found"
+
+    def test_one_leaked_rule_line_is_enough_to_withhold_the_reply(self, graph, tmp_path):
+        leak = LeakyLLM(lambda system: system.splitlines()[2])
+
+        result = build(graph, leak, tmp=tmp_path / "c").ask(POWERSHELL_Q)
+
+        assert result.status == "not_found"
+
+    def test_ordinary_answers_are_not_withheld(self, graph, tmp_path):
+        result = build(graph, FakeLLM(), tmp=tmp_path / "c").ask(POWERSHELL_Q)
+
+        assert result.status == "answered"

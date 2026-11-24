@@ -84,6 +84,9 @@ class Answerer:
             # Details stay out of the reply; the caller only needs to know it failed.
             return Answer("error", "The answer could not be generated. Please try again.", retrieved=retrieved)
 
+        if _leaks_rules(reply):
+            return Answer("not_found", NOT_FOUND_TEXT, retrieved=retrieved)
+
         cited = _verified_citations(reply, retrieved)
         if not cited:
             # An answer that cites nothing we retrieved is ungrounded; do not show it.
@@ -99,6 +102,23 @@ class Answerer:
 def _clean(question: str) -> str:
     kept = (ch for ch in question if ch in "\n\t" or unicodedata.category(ch) != "Cc")
     return "".join(kept).strip()
+
+
+def _squash(text: str) -> str:
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())
+
+
+_MIN_RULE_CHARS = 25
+_RULE_LINES = tuple(
+    squashed for line in SYSTEM_PROMPT.splitlines() if len(squashed := _squash(line)) >= _MIN_RULE_CHARS
+)
+
+
+def _leaks_rules(reply: str) -> bool:
+    # Case, spacing and punctuation are ignored so quoting or reformatting the
+    # rules does not slip past. Paraphrases and translations still can.
+    squashed = _squash(reply)
+    return any(rule in squashed for rule in _RULE_LINES)
 
 
 def _verified_citations(reply: str, retrieved: tuple[Ref, ...]) -> tuple[Ref, ...]:
