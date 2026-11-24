@@ -79,6 +79,23 @@ class AttackGraph:
             _add_relationship(graph, obj, known)
         return cls(graph)
 
+    @classmethod
+    def from_store(cls, path: Path | str) -> "AttackGraph":
+        graph = Graph()
+        graph.bind("ag", AG)
+        try:
+            graph.parse(str(path), format="nt")
+        except OSError as exc:
+            raise DataFileError(f"Cannot read graph store {path}: {exc.strerror}") from exc
+        except Exception as exc:  # rdflib raises assorted parser errors
+            raise DataFileError(f"{path} is not a valid graph store") from exc
+        return cls(graph)
+
+    def to_ntriples(self) -> bytes:
+        # Sorted so the same facts always produce the same bytes.
+        lines = self._graph.serialize(format="nt").splitlines()
+        return ("\n".join(sorted(line for line in lines if line)) + "\n").encode("utf-8")
+
     def technique(self, attack_id: str) -> Technique | None:
         attack_id = attack_id.strip().upper()
         row = self._first(
