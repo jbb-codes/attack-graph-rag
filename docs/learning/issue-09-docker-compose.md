@@ -76,6 +76,10 @@ flowchart TD
 
 **Why two stores:** Chroma matches meaning, so it handles vague questions. The graph stores exact relationships, so it handles precise facts. The LLM only has to write the answer.
 
+- **Chroma example (vague):** "how do attackers sneak in through email?" shares no exact words with the technique names. Chroma still finds Phishing (T1566) and Email Accounts (T1586.002), because their meaning is close. It cannot tell you who uses them.
+- **Graph example (exact):** "which groups use T1566.001?" has one right answer, stored as facts like `APT29 - uses - T1566.001`. The graph returns exactly those groups, with no guessing. It cannot find techniques from vague wording.
+- **Together:** Chroma finds the techniques, then the graph adds the exact facts about them.
+
 Start order: `sparql` and `chroma` become healthy, `setup` finishes, then `app` starts.
 
 ## Files and purpose
