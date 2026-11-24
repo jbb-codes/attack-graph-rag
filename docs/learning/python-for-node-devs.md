@@ -28,6 +28,11 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 | `path.join` / `fs.existsSync`   | `Path("a") / "b"`, `path.exists()`        | `pathlib.Path` does both.                       |
 | `process.chdir` in a test       | `monkeypatch.chdir(tmp_path)`             | pytest undoes it after each test.               |
 | `beforeEach` (shared setup)     | `@pytest.fixture` (in `conftest.py`)      | `autouse=True` applies it to every test.        |
+| `interface Store { ... }`       | `class VectorStore(Protocol)`             | Any class with those methods fits.              |
+| Vector DB client (Pinecone etc) | `chromadb.PersistentClient(path=...)`     | Local, stored in a folder.                      |
+| `test.each([...])`              | `@pytest.mark.parametrize("x", [...])`    | Runs the test once per value.                   |
+| `expect(fn).toThrow(/msg/)`     | `with pytest.raises(Err, match="msg")`    | `match` is a regex on the message.              |
+| `describe.skip` / tags          | `@pytest.mark.model` + `markers` config   | Custom label; select with `-m model`.           |
 
 ## Syntax you'll trip on
 
@@ -45,3 +50,9 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `Callable[[str], bytes]` is a function type, like `(url: string) => Buffer`.
 - `@property` makes a method read like a field, like a TS `get` accessor.
 - `except (A, B) as exc:` catches either error type.
+- `Protocol` is a structural interface, like a TS `interface`: no `implements`, matching methods is enough.
+- `def f(x, limit: int = 5)`: default values work like TS default params.
+- `zip(a, b, strict=True)` walks lists side by side and errors if lengths differ.
+- `[f(x) for x in xs]` is `xs.map(f)`. `sorted(xs, key=...)` is `sort` with a key.
+- `from x import y` inside a function delays a slow import until it is needed.
+- `result["ids"][0]`: Chroma returns one list per question, so `[0]` picks ours.
