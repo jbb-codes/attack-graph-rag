@@ -55,3 +55,17 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 - **Decision:** `load` saves the graph as sorted N-Triples (`data/attack-graph.nt`) and keeps the download in `data/` (git-ignored). Each load rebuilds the whole file, then swaps it in atomically. Lookups use the loaded graph if it exists, then fall back to the bundled fixture. `--data` still overrides both.
 - **Why:** The in-memory graph vanishes when the process ends, so a "load" needs somewhere to keep it. Rebuilding means re-running can never duplicate facts, and a version bump leaves no stale facts. Re-running also skips the 55 MB download. Reading the file is much faster than re-parsing the STIX JSON each lookup.
 - **Rejected:** merging new triples into the old store (stale facts survive a version bump); a SPARQL server now (stage 4 territory); parsing the full STIX file on every lookup (slow).
+
+## 2026-11-24: Chroma's default embedding model, run locally
+
+- **Decision:** Embed `"<name>. <description>"` for each technique with Chroma's bundled `all-MiniLM-L6-v2` model (384 numbers per text, runs on the CPU via ONNX). Distance is cosine. No API key and no network at search time; the model downloads once (~80 MB) into `~/.cache/chroma`.
+- **Why:** Free, private, and good enough for short technique text. Indexing all 706 techniques of v20.1 takes a few seconds. Name plus description lets short names like "Phishing" and longer prose both match.
+- **Rejected:** a hosted embedding API (cost, secrets, network in tests); a larger local model (bigger download, slower, not needed yet).
+- **Known limit:** on the full data, "how do attackers get in through email?" puts Phishing (T1566) in the top 10 but not the top 5, behind email-account and mail-protocol techniques. Acceptable for stage 2; the graph step and answer prompt can filter later. Changing the model needs a re-index.
+
+## 2026-11-24: Vector index is rebuilt on every `index`; embeddings computed by us
+
+- **Decision:** `index` drops the Chroma collection and rebuilds it from the loaded graph, stored at `data/chroma` (git-ignored). The store takes an `embed` function (default: the model above) and passes ready-made vectors to Chroma. `VectorStore` has two methods: `index(techniques)` and `search(question, limit)`.
+- **Why:** Same reasoning as the graph load: re-running can never duplicate entries, and techniques removed from the data cannot linger. Injecting `embed` lets fast tests use a tiny offline fake, and keeps Chroma's embedding-plugin API out of our interface so the store stays swappable.
+- **Tests:** store behavior (idempotent index, ordering, errors) uses the fake embedder. Two tests marked `model` use the real model to prove vague questions find the right techniques; they need the one-time download, then run offline.
+- **Rejected:** upserting only changed techniques (more code, stale-entry risk, indexing is already fast); Chroma's embedding-function plug-in (ties our interface to Chroma's API).
