@@ -39,3 +39,15 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **N-Triples:** the simplest text format for RDF: one triple per line. Our saved graph is one.
 - **Atomic write:** write to a temp file, then rename it. A crash never leaves a half-written file.
 - **Dependency injection:** passing in a collaborator (here, the downloader) so tests can swap in a fake.
+
+## Search by meaning
+
+- **Embedding:** a text turned into a list of numbers. Similar meaning gives similar numbers.
+- **Embedding model:** the program that makes embeddings. Ours is `all-MiniLM-L6-v2`, run locally.
+- **Vector:** that list of numbers (384 of them for our model).
+- **Vector search:** embed the question, then find the stored vectors closest to it.
+- **Cosine distance:** how far apart two vectors point. Smaller means closer in meaning.
+- **Chroma:** the database that stores vectors and finds the closest ones.
+- **Collection:** Chroma's "table". Ours is `techniques`.
+- **Index (verb):** embed every technique and store it. We rebuild it from scratch each time.
+- **Protocol:** a Python interface. Anything with the right methods fits, no `implements` needed.
