@@ -8,6 +8,7 @@ asking Chroma for the techniques whose numbers are closest.
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 from typing import Protocol
 
 import chromadb
@@ -46,9 +47,24 @@ def default_embed(texts: Sequence[str]) -> list[list[float]]:
 
 
 class ChromaVectorStore:
-    def __init__(self, path: Path | str, embed: Embed = default_embed) -> None:
-        self._client = chromadb.PersistentClient(path=str(Path(path).resolve()))  # Chroma caches clients by path text, so relative paths can collide
+    def __init__(self, path: Path | str, embed: Embed = default_embed, client=None) -> None:
+        # Chroma caches clients by path text, so relative paths can collide.
+        self._client = client or chromadb.PersistentClient(path=str(Path(path).resolve()))
         self._embed = embed
+
+    @classmethod
+    def remote(cls, url: str, embed: Embed = default_embed) -> "ChromaVectorStore":
+        """Talk to a Chroma server (a separate container) instead of local files."""
+        parts = urlsplit(url)
+        ssl = parts.scheme == "https"
+        try:
+            client = chromadb.HttpClient(host=parts.hostname, port=parts.port or (443 if ssl else 80), ssl=ssl)
+        except Exception as exc:  # HttpClient connects eagerly; its errors vary by version
+            raise VectorStoreError(
+                f"Cannot reach the Chroma server ({type(exc).__name__}). "
+                "Check that it is running and ATTACK_GRAPH_CHROMA_URL is right."
+            ) from exc
+        return cls("", embed, client=client)
 
     def index(self, techniques: Sequence[TechniqueDoc]) -> None:
         # Rebuilt from scratch, like the graph load: no duplicates, and

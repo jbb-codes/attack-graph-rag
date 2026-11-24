@@ -65,6 +65,8 @@ class Group:
 
 
 class AttackGraph:
+    NAMESPACE = AG
+
     def __init__(self, graph: Graph) -> None:
         self._graph = graph
 
@@ -135,15 +137,18 @@ class AttackGraph:
         )
 
     def group(self, name: str) -> Group | None:
-        needle = Literal(name.strip().casefold())
+        # Matched in Python, not with a FILTER on the input: a SPARQL server only
+        # receives bound values as a trailing VALUES block, which a FILTER cannot see.
+        needle = name.strip().casefold()
+        labels = self._query("SELECT ?s ?label WHERE { ?s a ag:Group ; (ag:name|ag:alias) ?label }")
+        matches = sorted(str(r.s) for r in labels if str(r.label).casefold() == needle)
+        if not matches:
+            return None
         row = self._first(
             "SELECT ?s ?id ?name ?desc WHERE { ?s a ag:Group ; ag:attackId ?id ;"
-            " ag:name ?name ; ag:description ?desc ;"
-            " (ag:name|ag:alias) ?label . FILTER(LCASE(STR(?label)) = ?needle) }",
-            needle=needle,
+            " ag:name ?name ; ag:description ?desc }",
+            s=URIRef(matches[0]),
         )
-        if row is None:
-            return None
         subject = row.s
         aliases = sorted(
             str(r.v) for r in self._query("SELECT ?v WHERE { ?s ag:alias ?v }", s=subject)

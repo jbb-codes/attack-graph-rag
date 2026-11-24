@@ -12,7 +12,8 @@ from fastapi import FastAPI
 from attack_graph.answer import Answer, Answerer
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
 from attack_graph.api import create_app
-from attack_graph.config import ConfigError, build_llm, load_llm_settings
+from attack_graph.config import ConfigError, StoreSettings, build_llm, load_llm_settings, load_store_settings
+from attack_graph.sparql import GraphServerError, SparqlServer
 from attack_graph.llm import LLM
 from attack_graph.vector import ChromaVectorStore, Embed, VectorStoreError, default_embed
 from attack_graph.release import (
@@ -50,21 +51,28 @@ def main(
     run_server: RunServer = _uvicorn_run,
 ) -> int:
     args = _build_parser().parse_args(argv)
+    env = os.environ if env is None else env
+
+    try:
+        stores = load_store_settings(env)
+    except ConfigError as exc:
+        print(exc, file=sys.stderr)
+        return 2
 
     if args.command == "load":
-        return _run_load(release, fetch)
+        return _run_load(release, fetch, stores)
 
     if args.command in ("ask", "serve") and llm is None:
         # Fail fast, before touching any data, if the model is not configured.
         try:
-            llm = build_llm(load_llm_settings(os.environ if env is None else env))
+            llm = build_llm(load_llm_settings(env))
         except ConfigError as exc:
             print(exc, file=sys.stderr)
             return 2
 
     if args.command == "search":
         try:
-            hits = ChromaVectorStore(VECTOR_DIR, embed).search(args.question, args.limit)
+            hits = _vector_store(stores, embed).search(args.question, args.limit)
         except VectorStoreError as exc:
             print(exc, file=sys.stderr)
             return 2
@@ -73,21 +81,25 @@ def main(
         return 0
 
     try:
-        graph = _load(args.data)
-    except DataFileError as exc:
-        print(exc, file=sys.stderr)
+        graph = _load(args.data, stores)
+    except (DataFileError, GraphServerError) as exc:
+        print(_with_variable_hint(exc), file=sys.stderr)
         return 2
 
-    if args.command == "index":
-        store = ChromaVectorStore(VECTOR_DIR, embed)
+    if args.command in ("index", "ask", "serve"):
+        try:
+            vectors = _vector_store(stores, embed)
+        except VectorStoreError as exc:
+            print(exc, file=sys.stderr)
+            return 2
+        if args.command == "ask":
+            return _run_ask(args.question, graph, vectors, llm)
+        if args.command == "serve":
+            run_server(create_app(Answerer(vectors, graph, llm)), args.host, args.port)
+            return 0
         docs = graph.technique_docs()
-        store.index(docs)
-        print(f"Indexed {len(docs)} techniques into {VECTOR_DIR}")
-        return 0
-    if args.command == "ask":
-        return _run_ask(args.question, graph, embed, llm)
-    if args.command == "serve":
-        run_server(create_app(Answerer(ChromaVectorStore(VECTOR_DIR, embed), graph, llm)), args.host, args.port)
+        vectors.index(docs)
+        print(f"Indexed {len(docs)} techniques")
         return 0
     if args.command == "technique":
         technique = graph.technique(args.id)
@@ -123,8 +135,14 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _run_ask(question: str, graph: AttackGraph, embed: Embed, llm: LLM) -> int:
-    answerer = Answerer(ChromaVectorStore(VECTOR_DIR, embed), graph, llm)
+def _vector_store(stores: StoreSettings, embed: Embed) -> ChromaVectorStore:
+    if stores.chroma_url:
+        return ChromaVectorStore.remote(stores.chroma_url, embed)
+    return ChromaVectorStore(VECTOR_DIR, embed)
+
+
+def _run_ask(question: str, graph: AttackGraph, vectors: ChromaVectorStore, llm: LLM) -> int:
+    answerer = Answerer(vectors, graph, llm)
     try:
         answer = answerer.ask(question)
     except VectorStoreError as exc:
@@ -147,22 +165,35 @@ def _format_answer(answer: Answer) -> str:
     return "\n".join(lines)
 
 
-def _run_load(release: Release, fetch: Fetch) -> int:
+def _run_load(release: Release, fetch: Fetch, stores: StoreSettings) -> int:
     try:
         source = ensure_downloaded(release, DATA_DIR, fetch)
         graph = AttackGraph.from_stix_file(source)
-    except (ReleaseError, DataFileError) as exc:
-        print(exc, file=sys.stderr)
+        # Rebuilt from scratch each run, so facts can never pile up as duplicates.
+        if stores.sparql_url:
+            SparqlServer(stores.sparql_url).replace(graph.to_ntriples())
+            destination = "the SPARQL server"
+        else:
+            write_atomically(STORE, graph.to_ntriples())
+            destination = str(STORE)
+    except (ReleaseError, DataFileError, GraphServerError) as exc:
+        print(_with_variable_hint(exc), file=sys.stderr)
         return 2
-    # Rebuilt from scratch each run, so facts can never pile up as duplicates.
-    write_atomically(STORE, graph.to_ntriples())
-    print(f"Loaded ATT&CK Enterprise {release.version} into {STORE}")
+    print(f"Loaded ATT&CK Enterprise {release.version} into {destination}")
     return 0
 
 
-def _load(data: str | None) -> AttackGraph:
+def _with_variable_hint(exc: Exception) -> str:
+    if isinstance(exc, GraphServerError):
+        return f"{exc} Check that the server is running and ATTACK_GRAPH_SPARQL_URL is right."
+    return str(exc)
+
+
+def _load(data: str | None, stores: StoreSettings) -> AttackGraph:
     if data is not None:
         return AttackGraph.from_stix_file(data)
+    if stores.sparql_url:
+        return SparqlServer(stores.sparql_url).graph()
     if STORE.exists():
         try:
             return AttackGraph.from_store(STORE)
