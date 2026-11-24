@@ -171,3 +171,17 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Forbidden text:** words an attack tries to force into the answer (like `PWNED`). Seeing them means the attack worked.
 - **Results file:** one JSON per run in `eval-results/` (git-ignored), so runs can be compared.
 - **Regression:** a case that passed in the previous run and fails now.
+
+## Security checks
+
+- **Security event:** a log line about something suspicious (rate limit hit, rejected input), with a type and reason but no content.
+- **Opaque client id:** a short keyed hash of the caller's address. Shows repeat callers without revealing them; changes on restart.
+- **HMAC:** a hash that needs a secret key, so nobody without the key can recompute or reverse it.
+- **CVE:** a public id for a known security bug in some software.
+- **Vulnerability scan:** checking the versions you ship against lists of known bugs.
+- **trivy:** a scanner for container images (operating system and language packages).
+- **pip-audit:** a scanner for the Python packages in a lockfile.
+- **bandit:** a scanner for risky patterns in Python code.
+- **checkov:** a scanner for risky settings in Dockerfiles and Kubernetes files.
+- **Accepted finding:** a known issue kept on purpose, with the reason written down.
+- **Access log:** the server's line per request, which includes the caller's address. Turned off here.

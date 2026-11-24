@@ -124,3 +124,12 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `path.glob("*.json")` plus `sorted(...)` gives files in name order; timestamp names make that "oldest to newest".
 - `typing.get_args(Status)` lists the allowed values of a `Literal[...]` type at run time, so one list serves the type and the check.
 - `zip(a, b)` walks two lists in step, like iterating two arrays by the same index.
+- `logging.getLogger("a.b")` is a named logger; children inherit from `"a"`, so setting up `"a"` once covers all of them (like one shared `pino` parent).
+- `logger.log(level, msg)` takes the level as a number (`logging.WARNING`), so one helper can log at any level.
+- Python hides `INFO` logs until something configures logging; with no setup only `WARNING` and above print.
+- `caplog` (pytest fixture) captures log lines so a test can assert on them, like spying on `console.log`.
+- `hmac.new(key, data, hashlib.sha256).hexdigest()` is a keyed hash, like `crypto.createHmac("sha256", key).update(data).digest("hex")`.
+- `secrets.token_bytes(32)` makes random bytes fit for keys, like `crypto.randomBytes(32)`. Plain `random` is not for security.
+- `"".join(s.split())` removes all whitespace, since `split()` with no argument splits on any run of it.
+- `# nosec B310` tells bandit to skip one finding on that line; put the reason on the line above.
+- `uvx tool` runs a Python tool once without installing it, like `npx`.
