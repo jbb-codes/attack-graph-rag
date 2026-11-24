@@ -187,3 +187,11 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **checkov:** a scanner for risky settings in Dockerfiles and Kubernetes files.
 - **Accepted finding:** a known issue kept on purpose, with the reason written down.
 - **Access log:** the server's line per request, which includes the caller's address. Turned off here.
+
+## Documentation
+
+- **Verification status:** a table of what was really run and what was only written.
+- **Smoke test:** a quick script that starts the system and checks it basically works.
+- **Offline answerer:** a stand-in "model" that restates one fact. Fine for demos, not a quality test.
+- **Mermaid:** diagrams written as text in a Markdown code block; GitHub draws them.
+- **Licence notice:** the copyright line you must keep when you reuse someone's data, here MITRE's for ATT&CK.
