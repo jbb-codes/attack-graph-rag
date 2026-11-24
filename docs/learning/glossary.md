@@ -138,3 +138,21 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Chroma server:** Chroma run as its own program, so the vector index lives outside the app.
 - **Smoke test:** a quick check that the whole thing starts and does its main job.
 
+- **Kubernetes (k8s):** software that runs containers across machines and keeps them matching the YAML you gave it.
+- **kind:** Kubernetes in Docker; makes a throwaway local cluster for learning and tests.
+- **Cluster / node:** the whole Kubernetes system, and one machine inside it.
+- **Pod:** the smallest runnable unit: one or more containers that share a network.
+- **Deployment:** keeps a set number of identical pods running and replaces them on change or crash.
+- **Service (Kubernetes):** a stable name and address in front of changing pods. `ClusterIP` means inside-cluster only.
+- **Namespace:** a named folder for cluster objects; deleting it deletes everything in it.
+- **ConfigMap:** plain, non-secret settings handed to pods as environment variables.
+- **Secret (Kubernetes):** sensitive settings handed to pods. Base64 only, not encryption.
+- **PVC (PersistentVolumeClaim):** a request for disk that outlives pods.
+- **Probe:** a health check. Readiness gates traffic, liveness triggers a restart, startup allows a slow boot.
+- **Job (Kubernetes):** a pod that runs once to completion.
+- **initContainer:** a container that must finish before the pod's main containers start.
+- **Label and selector:** key-value tags on objects, and the query a Deployment or Service uses to find them.
+- **Pod Security level `restricted`:** a namespace setting; Kubernetes refuses pods that are root or hold extra privileges.
+- **Port-forward:** `kubectl port-forward` opens a local port that tunnels to a Service or pod.
+- **Resource request / limit:** the memory and CPU a pod reserves, and the ceiling it is killed or throttled at.
+- **kubectl apply:** make the cluster match the YAML files given.

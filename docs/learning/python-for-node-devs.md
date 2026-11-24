@@ -104,3 +104,12 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `x: dict | None = None` then `x or default`: `or` returns the first truthy side, like `x || default`.
 - `parts.port  # raises` as a bare statement runs the property just for its error. It is a check, not a no-op.
 - `dict` merge keys in YAML (`<<: *anchor`) are Compose's way of reusing config; `&name` defines, `*name` reuses.
+- `yaml.safe_load_all(text)` reads a multi-document YAML file (`---` separated) as a generator of dicts. Use `safe_` always: plain `load` can build arbitrary objects.
+- `Path.glob("*.yaml")` lists matching files, like `fs.readdirSync` plus a filter. `sorted(...)` first, because order is not guaranteed.
+- `(x,) = items` unpacks a list that must have exactly one item, and raises if it has 0 or 2. A compact "exactly one" assertion.
+- `[*a, *b]` merges two lists, like `[...a, ...b]`.
+- `lambda w: w["name"]` is an inline function, like `w => w.name`. Used as `ids=` to name parametrized test cases.
+- `re.search(r"pattern", text)` finds a match anywhere and returns `None` if none; `r"..."` is a raw string, so backslashes stay literal.
+- `str.partition(":")` splits once into `(before, ":", after)`, and gives empty strings when the separator is missing.
+- `{...}` set comprehension (`{c["name"] for c in items}`) builds a set, which makes "is it in there" checks fast.
+- `# noqa: E731` silences one linter rule on that line (here: "do not assign a lambda").
