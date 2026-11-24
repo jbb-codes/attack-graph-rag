@@ -153,3 +153,16 @@ def test_configure_logging_sends_events_to_stderr_once(capsys):
 
     err = capsys.readouterr().err
     assert err.count("event=probe") == 1
+
+
+def test_server_does_not_write_an_access_log_with_client_addresses(monkeypatch):
+    import uvicorn
+
+    from attack_graph.cli import _uvicorn_run
+
+    seen: dict = {}
+    monkeypatch.setattr(uvicorn, "run", lambda app, **kwargs: seen.update(kwargs))
+
+    _uvicorn_run(object(), "127.0.0.1", 8000)
+
+    assert seen["access_log"] is False
