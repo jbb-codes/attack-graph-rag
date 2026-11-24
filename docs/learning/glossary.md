@@ -81,3 +81,4 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **OpenAI-style API:** a common chat HTTP format that many local servers copy.
 - **Refusal:** Claude declining a request; we turn it into our generic error.
 - **Live test:** a test that calls the real API. It costs a little, so it only runs on request.
+- **Ollama:** a free tool that runs open models on your own machine and serves them over a local HTTP address.
