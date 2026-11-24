@@ -117,3 +117,16 @@ A running log. Newest entries at the bottom. Each entry: what was decided, why, 
 
 - **Decision:** Fast tests drive `ask` through a fake Anthropic client and a fake HTTP function, and test config through the `ask` command with an injected `env`. One test calls the real API; it is marked `live`, skipped without a key, and excluded by default (`addopts = -m 'not live'`). Run it with `uv run pytest -m live`.
 - **Why:** The normal run stays free, offline, and key-free. The live test costs a few cents and only proves the real wiring.
+
+## 2026-11-24: HTTP API uses FastAPI, with hand-written parsing and one response shape
+
+- **Decision:** `api.py` builds a FastAPI app with `POST /ask` and `GET /health`. Every reply is `{success, data, error}`; errors are `{code, message}` with fixed text. The request body is read and checked by hand (JSON, an object, `question` is a string), not by FastAPI's automatic validation. Runs with uvicorn through `attack-graph serve` (default `127.0.0.1:8000`).
+- **Why:** FastAPI has a first-class test client and is the common Python choice, so it is a good thing to learn. Automatic validation errors echo input and field paths in a different shape; hand-checking keeps one shape and leaks nothing. Business rules (empty or over-500-character questions) stay in `ask`; the API only maps `status` to HTTP: `answered` and `not_found` are 200 (the request worked), `invalid` 400, `error` 502, missing index 503, anything unexpected 500.
+- **Rejected:** Flask (no built-in async or typed models, test client is fine but less to learn from); the standard library `http.server` (we would rewrite routing and headers); FastAPI's automatic validation (leaks detail, second error shape).
+
+## 2026-11-24: API safeguards
+
+- **Decision:** Body limit 4 KB (checked from `Content-Length` and again on the bytes read; 413). Rate limit is a sliding window per client address, 20 requests per 60 seconds on `/ask` only (429 plus `Retry-After`); the clock is injected so tests are exact. Security headers on every response (`nosniff`, `X-Frame-Options: DENY`, `Cache-Control: no-store`, `Referrer-Policy`, a CSP of `default-src 'none'`). `/docs` and `/openapi.json` are off. Logs record only the exception type, never the message or question.
+- **Why:** The LLM costs money and the service is public, so abuse limits matter. Unexpected errors are caught inside the route (not by a global handler) so they still get the shared shape and the headers. `/health` is exempt from the limit so probes never get blocked.
+- **Known limits:** The limiter lives in one process's memory, so it resets on restart and is per replica; the client address is the direct peer, so behind a proxy everyone looks the same (revisit with Compose and Kubernetes, stages 4 and 5). A chunked upload with no `Content-Length` is fully read before the size check; a reverse proxy should cap it. No HSTS: it only means something over HTTPS, which TLS termination will own. No authentication yet.
+- **Rejected:** a rate-limit library (one more dependency for about 20 lines); limiting `/health`.
