@@ -18,8 +18,9 @@ Checked: `scripts/compose-smoke.sh` passes. It caught one real bug: a volume mou
 
 **Key**
 
-- **Teal boxes are data:** stored data and volumes.
-- **Purple boxes are code:** programs running in containers.
+- **Teal boxes are data:** stored data, volumes and outside services.
+- **Purple boxes are code:** programs running in containers. The small text names the file or command behind each one.
+- **Numbers** match the steps under the graph. Steps 1 to 3 run once (`setup`). Steps 4 to 8 run on every question.
 
 ```mermaid
 ---
@@ -29,30 +30,51 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  U["`**You**
-  curl localhost:8000`"] --> APP["`**app**
-  attack-graph serve`"]
-  APP --> SP["`**sparql**
-  Oxigraph`"]
-  APP --> CH["`**chroma**
-  vector server`"]
-  SET["`**setup**
-  load then index
-  runs once`"] --> SP
-  SET --> CH
-  SET --> DL["`**app-data**
-  ATT&CK download`"]
-  SP --> V1["`**sparql-data**
+  SET["`**1 setup**
+  cli.py: load, then index
+  runs once, then exits`"] -->|"2 graph facts"| SP["`**sparql**
+  Oxigraph
+  graph.py, sparql.py`"]
+  SET -->|"3 embeddings"| CH["`**chroma**
+  vector database
+  vector.py`"]
+  SP --- V1["`**sparql-data**
   the graph`"]
-  CH --> V2["`**chroma-data**
+  CH --- V2["`**chroma-data**
   the vectors`"]
-  APP --> LLM["`**Claude API**
+  U["`**You**
+  curl localhost:8000/ask`"] -->|"4 question"| APP["`**app**
+  api.py, answer.py
+  attack-graph serve`"]
+  APP -->|"5 find by meaning"| CH
+  APP -->|"6 exact facts"| SP
+  APP -->|"7 facts and question"| LLM["`**Claude API**
+  llm.py
   key from env`"]
+  LLM -->|"8 short answer"| APP
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
   classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
-  class U,V1,V2,DL,LLM data
+  class U,V1,V2,LLM data
   class APP,SP,CH,SET code
 ```
+
+## The steps
+
+**Once, at start (`setup`)**
+
+1. `setup` downloads ATT&CK (about 55 MB, cached in the `app-data` volume) and turns it into facts.
+2. It uploads those facts to `sparql`, which stores them in the `sparql-data` volume.
+3. It turns each technique's text into an embedding and stores them in `chroma` (the `chroma-data` volume).
+
+**On every question (`app`)**
+
+4. You send a question to the `app` container.
+5. `app` asks `chroma` for the techniques closest in meaning to the question. This handles vague wording.
+6. `app` asks `sparql` for the exact facts about those techniques: groups, software, defenses.
+7. `app` sends the question and only those facts to the LLM. In offline mode this step is replaced by a simple stand-in.
+8. The LLM writes a short answer. `app` keeps only the technique IDs it really retrieved as citations, then returns the answer.
+
+**Why two stores:** Chroma matches meaning, so it handles vague questions. The graph stores exact relationships, so it handles precise facts. The LLM only has to write the answer.
 
 Start order: `sparql` and `chroma` become healthy, `setup` finishes, then `app` starts.
 
