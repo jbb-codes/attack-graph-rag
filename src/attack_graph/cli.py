@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from attack_graph.answer import Answer, Answerer
 from attack_graph.evals import EvalError, injection_cases, latest_run, load_cases, run_evals, save_run, summarize
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
+from attack_graph.security_log import configure_logging
 from attack_graph.api import create_app
 from attack_graph.config import ConfigError, StoreSettings, build_llm, load_llm_settings, load_store_settings
 from attack_graph.sparql import GraphServerError, SparqlServer
@@ -103,6 +104,7 @@ def main(
         if args.command == "eval":
             return _run_eval(args, Answerer(vectors, graph, llm), llm_label)
         if args.command == "serve":
+            configure_logging()
             run_server(create_app(Answerer(vectors, graph, llm)), args.host, args.port)
             return 0
         docs = graph.technique_docs()

@@ -6,6 +6,7 @@ the technique IDs the LLM cited that we really retrieved. If nothing relevant
 is found, the LLM is never called.
 """
 
+import logging
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from typing import Literal
 
 from attack_graph.graph import AttackGraph, Ref, Technique
 from attack_graph.llm import LLM, LLMError
+from attack_graph.security_log import log_event
 from attack_graph.vector import VectorStore
 
 MAX_QUESTION_CHARS = 500
@@ -80,16 +82,19 @@ class Answerer:
 
         try:
             reply = self._llm.complete(SYSTEM_PROMPT, _build_prompt(question, techniques))
-        except LLMError:
-            # Details stay out of the reply; the caller only needs to know it failed.
+        except LLMError as exc:
+            # Details stay out of the reply and the log; only the error type is recorded.
+            log_event("answer_failed", level=logging.ERROR, error=type(exc).__name__)
             return Answer("error", "The answer could not be generated. Please try again.", retrieved=retrieved)
 
         if _leaks_rules(reply):
+            log_event("reply_withheld", reason="rules_leak", length=len(reply))
             return Answer("not_found", NOT_FOUND_TEXT, retrieved=retrieved)
 
         cited = _verified_citations(reply, retrieved)
         if not cited:
             # An answer that cites nothing we retrieved is ungrounded; do not show it.
+            log_event("reply_withheld", reason="no_verified_citation", length=len(reply))
             return Answer("not_found", NOT_FOUND_TEXT, retrieved=retrieved)
         return Answer("answered", reply.strip(), cited=cited, retrieved=retrieved)
 
