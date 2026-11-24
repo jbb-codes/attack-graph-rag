@@ -79,7 +79,8 @@ def http_post_json(url: str, body: dict[str, Any]) -> dict[str, Any]:
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+    # URL is checked to be http(s) in config.py, so file: and custom schemes cannot reach here.
+    with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:  # nosec B310
         return json.load(response)
 
 

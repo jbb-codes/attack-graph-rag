@@ -40,7 +40,7 @@ def load_llm_settings(env: Mapping[str, str]) -> LLMSettings:
         provider=provider,
         api_key=get("ANTHROPIC_API_KEY"),
         claude_model=get("ATTACK_GRAPH_CLAUDE_MODEL", DEFAULT_CLAUDE_MODEL),
-        local_url=get("ATTACK_GRAPH_LOCAL_URL", DEFAULT_LOCAL_URL),
+        local_url=_http_url(env, "ATTACK_GRAPH_LOCAL_URL") or DEFAULT_LOCAL_URL,
         local_model=get("ATTACK_GRAPH_LOCAL_MODEL"),
     )
     if provider == "claude" and not settings.api_key:
