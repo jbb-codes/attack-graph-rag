@@ -161,3 +161,13 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **MiniLM (`all-MiniLM-L6-v2`):** the small embedding model (about 80 MB) that turns text into 384 numbers, run on your machine.
 - **Oxigraph:** the program that stores the graph facts and answers SPARQL over HTTP.
 - **kubectl apply:** make the cluster match the YAML files given.
+
+## Evals
+
+- **Eval set:** a fixed list of questions with known-good expectations, used to measure answer quality.
+- **Eval run:** asking every eval question once and scoring the replies. Uses the real model, so it costs a little and only runs on request.
+- **Case kinds:** `specific` (names one technique), `vague` (everyday wording), `unsupported` (should be refused), `injection` (an attack hidden in a question).
+- **Score check:** a simple yes/no test on one reply: right status, expected IDs cited, required words present, forbidden words absent.
+- **Forbidden text:** words an attack tries to force into the answer (like `PWNED`). Seeing them means the attack worked.
+- **Results file:** one JSON per run in `eval-results/` (git-ignored), so runs can be compared.
+- **Regression:** a case that passed in the previous run and fails now.

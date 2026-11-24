@@ -39,6 +39,10 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 | `http.createServer` in a test   | `ThreadingHTTPServer(("127.0.0.1", 0), Handler)` | Port 0 picks a free port; run it on a daemon thread. |
 | `try { ... } finally { ... }` as a helper | `@contextmanager` + `yield` | Use as `with helper() as x:`; cleanup runs after. |
 | `process.env.X` with default    | `env.get("X", "")`                        | Missing keys give the default instead of `undefined`. |
+| `JSON.parse(fs.readFileSync(p))` | `json.loads(path.read_text())`        | Raises `ValueError` on bad JSON; catch it and re-raise a clear error. |
+| `new Date().toISOString()`      | `datetime.now(timezone.utc).isoformat()`  | Always pass the timezone, or you get a "naive" time. |
+| `Object.assign({}, a, {x: 1})`  | `dataclasses.replace(a, x=1)`             | Copy of a frozen dataclass with one field changed. |
+| `JSON.stringify(obj, null, 2)`  | `json.dumps(asdict(obj), indent=2)`       | `asdict` turns a dataclass into plain dicts first. |
 
 ## Syntax you'll trip on
 
@@ -113,3 +117,10 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `str.partition(":")` splits once into `(before, ":", after)`, and gives empty strings when the separator is missing.
 - `{...}` set comprehension (`{c["name"] for c in items}`) builds a set, which makes "is it in there" checks fast.
 - `# noqa: E731` silences one linter rule on that line (here: "do not assign a lambda").
+- `Counter(items)` (from `collections`) counts occurrences into a dict-like object; a missing key reads as `0`, so no `?? 0`.
+- `sum(r.passed for r in results)` adds up booleans (`True` is `1`), a quick "how many".
+- `{**a, "k": v}` copies a dict with one key changed, like `{...a, k: v}`. `Cls(**d)` spreads a dict into named arguments.
+- `@property` makes a method read like a field (`run.total`, no parentheses), like a getter.
+- `path.glob("*.json")` plus `sorted(...)` gives files in name order; timestamp names make that "oldest to newest".
+- `typing.get_args(Status)` lists the allowed values of a `Literal[...]` type at run time, so one list serves the type and the check.
+- `zip(a, b)` walks two lists in step, like iterating two arrays by the same index.

@@ -9,7 +9,7 @@ Question-answering service over MITRE ATT&CK Enterprise. Vector search (Chroma) 
 
 ## Current stage
 
-Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 done: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API (issue #7). Stage 4 done: Docker and Compose (issue #9; `scripts/compose-smoke.sh` passes). Stage 5 written: Kubernetes manifests in `k8s/` (issue #10; no cluster tooling was available, so run `scripts/k8s-smoke.sh` before relying on them). Stage 6 started: prompt-injection defenses (issue #8). Stages, each shippable on its own:
+Stage 1 done: fixture graph and lookup CLI (issue #2); full ATT&CK Enterprise load (issue #3). Stage 2 done: vector search by meaning (issue #4). Stage 3 done: `ask` pipeline with a fake LLM done (issue #5); real LLM client and config done (issue #6); HTTP API (issue #7). Stage 4 done: Docker and Compose (issue #9; `scripts/compose-smoke.sh` passes). Stage 5 written: Kubernetes manifests in `k8s/` (issue #10; no cluster tooling was available, so run `scripts/k8s-smoke.sh` before relying on them). Stage 6 started: prompt-injection defenses (issue #8); eval set and runner (issue #11; written offline, not yet run against the real model). Stages, each shippable on its own:
 
 1. Graph load and SPARQL queries (plain Python)
 2. Vector store and retrieval (plain Python)
@@ -55,6 +55,7 @@ Plain English, one line per entry, written for a Node/TS developer new to Python
 - Check the Docker stack end to end (opt-in, needs Docker and internet, uses the offline answerer): `scripts/compose-smoke.sh`
 - Kubernetes on a local kind cluster (needs Docker, kind, kubectl; build and load the two images first, see `docs/learning/issue-10-kubernetes.md` for each step): `kubectl apply -f k8s/`, create the secret with `kubectl -n attack-graph create secret generic attack-graph-secrets --from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"` (skip with `ATTACK_GRAPH_LLM=offline`), then `kubectl -n attack-graph port-forward svc/app 8000:8000` and `curl` as above; remove with `kubectl delete namespace attack-graph`
 - Check the Kubernetes setup end to end (opt-in, needs Docker, kind, kubectl and internet, creates and deletes its own cluster, offline answerer): `scripts/k8s-smoke.sh`
+- Run the eval set (opt-in, costs a little, uses the configured model, needs `index` first; reads `evals/questions.json` and `tests/injection_corpus.json`, prints a score, saves `eval-results/<time>.json` (git-ignored) and compares with the last run; exit 1 if any case fails): `uv run attack-graph eval`. Options: `--cases`, `--corpus`, `--results-dir`
 - Real-Claude test (opt-in, costs a little, needs `ANTHROPIC_API_KEY`): `uv run pytest -m live`
 - Use another STIX file (overrides loaded data): `uv run attack-graph --data path/to/bundle.json technique T1566`
 
