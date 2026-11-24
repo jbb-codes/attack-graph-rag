@@ -30,3 +30,12 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Entry point:** a command name mapped to a function.
 - **venv:** an isolated folder of packages for one project.
 - **Lockfile:** an exact record of installed versions, so every machine gets the same ones.
+
+## Loading real data
+
+- **Pinned version:** one exact ATT&CK release we always use, so results are repeatable.
+- **Checksum (SHA-256):** a fingerprint of a file. If the download's fingerprint differs, it is corrupt or tampered with.
+- **Idempotent:** running it twice gives the same result as running it once.
+- **N-Triples:** the simplest text format for RDF: one triple per line. Our saved graph is one.
+- **Atomic write:** write to a temp file, then rename it. A crash never leaves a half-written file.
+- **Dependency injection:** passing in a collaborator (here, the downloader) so tests can swap in a fake.
