@@ -107,7 +107,6 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 
 - **Prompt injection:** text that tries to give the model new orders ("ignore your rules"). The model cannot always tell data from instructions.
 - **Untrusted data:** any text we did not write: the question, and the retrieved ATT&CK text.
-- **System prompt:** the fixed rules sent apart from user text.
 - **Delimiter breakout:** untrusted text writing `</facts>` to end its block early and pose as rules.
 - **Escaping:** replacing `<` and `>` with `&lt;` and `&gt;` so text cannot form a tag.
 - **Prompt leak:** the model repeating its rules back to the user.
