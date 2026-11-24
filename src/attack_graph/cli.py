@@ -6,7 +6,9 @@ from collections.abc import Sequence
 from importlib.resources import as_file, files
 from pathlib import Path
 
+from attack_graph.answer import Answer, Answerer
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
+from attack_graph.llm import LLM, OfflineLLM
 from attack_graph.vector import ChromaVectorStore, Embed, VectorStoreError, default_embed
 from attack_graph.release import (
     PINNED,
@@ -29,6 +31,7 @@ def main(
     fetch: Fetch = http_fetch,
     release: Release = PINNED,
     embed: Embed = default_embed,
+    llm: LLM | None = None,
 ) -> int:
     args = _build_parser().parse_args(argv)
 
@@ -57,6 +60,8 @@ def main(
         store.index(docs)
         print(f"Indexed {len(docs)} techniques into {VECTOR_DIR}")
         return 0
+    if args.command == "ask":
+        return _run_ask(args.question, graph, embed, llm or OfflineLLM())
     if args.command == "technique":
         technique = graph.technique(args.id)
         if technique is None:
@@ -81,9 +86,34 @@ def _build_parser() -> argparse.ArgumentParser:
     search = sub.add_parser("search", help="find techniques by meaning, e.g. 'how do attackers use email?'")
     search.add_argument("question")
     search.add_argument("--limit", type=int, default=5, help="how many techniques to show (default 5)")
+    sub.add_parser("ask", help="answer a question using techniques and graph facts").add_argument("question")
     sub.add_parser("technique", help="look up a technique by ID, e.g. T1566.001").add_argument("id")
     sub.add_parser("group", help="look up a group by name or alias, e.g. APT29").add_argument("name")
     return parser
+
+
+def _run_ask(question: str, graph: AttackGraph, embed: Embed, llm: LLM) -> int:
+    answerer = Answerer(ChromaVectorStore(VECTOR_DIR, embed), graph, llm)
+    try:
+        answer = answerer.ask(question)
+    except VectorStoreError as exc:
+        print(exc, file=sys.stderr)
+        return 2
+    if answer.status in ("invalid", "error"):
+        print(answer.text, file=sys.stderr)
+        return 2
+    print(_format_answer(answer))
+    return 0 if answer.status == "answered" else 1
+
+
+def _format_answer(answer: Answer) -> str:
+    if answer.status != "answered":
+        return answer.text
+    lines = [answer.text, "", "Cited:"]
+    lines += [f"  {ref.attack_id} {ref.name}" for ref in answer.cited]
+    lines += ["Retrieved:"]
+    lines += [f"  {ref.attack_id} {ref.name}" for ref in answer.retrieved]
+    return "\n".join(lines)
 
 
 def _run_load(release: Release, fetch: Fetch) -> int:
