@@ -45,15 +45,15 @@ flowchart TD
 
 Before this issue, a fake stand-in wrote the answers. Now a real model, Claude, can write them, and settings pick which model. The boxes, in order:
 
-- **Env vars:** your settings, set in the terminal. `ATTACK_GRAPH_LLM` picks the model; `ANTHROPIC_API_KEY` is your Claude password, so it never lives in code or git.
-- **Load + check:** reads those settings and validates them before anything else runs, so you don't wait for a slow search just to hit a missing-key error.
-- **Clear error:** a missing or bad setting prints which variable is wrong (never its value) and stops with exit code 2. No data is loaded.
-- **Pick provider:** turns the setting into the matching model object. The default is `claude`.
-- **ClaudeLLM:** sends the question to Claude over the internet. It's the real one, and costs a little per question.
-- **LocalLLM:** talks to a model on your own computer (for example Ollama). Free and private.
-- **OfflineLLM:** no model at all; it repeats the first fact it finds. For trying the CLI without a key.
-- **Reply text:** whichever model you chose returns plain text. All three share one method, `complete(system, prompt)`, so the pipeline needs no changes. Any failure becomes a bare `LLMError`, which `ask` shows as a generic error.
-- **ask pipeline:** unchanged. It checks the reply cites only techniques we really found, and drops it otherwise.
+1. **Env vars:** your settings, set in the terminal. `ATTACK_GRAPH_LLM` picks the model; `ANTHROPIC_API_KEY` is your Claude password, so it never lives in code or git.
+2. **Load + check:** reads those settings and validates them before anything else runs, so you don't wait for a slow search just to hit a missing-key error.
+3. **Clear error:** a missing or bad setting prints which variable is wrong (never its value) and stops with exit code 2. No data is loaded.
+4. **Pick provider:** turns the setting into the matching model object. The default is `claude`.
+5. **ClaudeLLM:** sends the question to Claude over the internet. It's the real one, and costs a little per question.
+6. **LocalLLM:** talks to a model on your own computer (for example Ollama). Free and private.
+7. **OfflineLLM:** no model at all; it repeats the first fact it finds. For trying the CLI without a key.
+8. **Reply text:** whichever model you chose returns plain text. All three share one method, `complete(system, prompt)`, so the pipeline needs no changes. Any failure becomes a bare `LLMError`, which `ask` shows as a generic error.
+9. **ask pipeline:** unchanged. It checks the reply cites only techniques we really found, and drops it otherwise.
 
 ## Files and what they do
 
