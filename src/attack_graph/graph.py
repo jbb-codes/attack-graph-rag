@@ -46,6 +46,15 @@ class Technique:
 
 
 @dataclass(frozen=True)
+class TechniqueDoc:
+    """The text of one technique that gets embedded for search."""
+
+    attack_id: str
+    name: str
+    description: str
+
+
+@dataclass(frozen=True)
 class Group:
     attack_id: str
     name: str
@@ -95,6 +104,14 @@ class AttackGraph:
         # Sorted so the same facts always produce the same bytes.
         lines = self._graph.serialize(format="nt").splitlines()
         return ("\n".join(sorted(line for line in lines if line)) + "\n").encode("utf-8")
+
+    def technique_docs(self) -> tuple[TechniqueDoc, ...]:
+        rows = self._query(
+            "SELECT ?id ?name ?desc WHERE { ?s a ag:Technique ; ag:attackId ?id ;"
+            " ag:name ?name ; ag:description ?desc }"
+        )
+        return tuple(sorted((TechniqueDoc(str(r.id), str(r.name), str(r.desc)) for r in rows),
+                            key=lambda d: d.attack_id))
 
     def technique(self, attack_id: str) -> Technique | None:
         attack_id = attack_id.strip().upper()
