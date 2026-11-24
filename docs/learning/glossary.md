@@ -47,7 +47,13 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Vector:** that list of numbers (384 of them for our model).
 - **Vector search:** embed the question, then find the stored vectors closest to it.
 - **Cosine distance:** how far apart two vectors point. Smaller means closer in meaning.
-- **Chroma:** the database that stores vectors and finds the closest ones.
+- **Chroma:** a vector database. It stores vectors and finds the closest ones fast. Ours runs embedded, saved in a folder.
 - **Collection:** Chroma's "table". Ours is `techniques`.
 - **Index (verb):** embed every technique and store it. We rebuild it from scratch each time.
 - **Protocol:** a Python interface. Anything with the right methods fits, no `implements` needed.
+- **Embed (verb):** run text through the embedding model to get its vector.
+- **VectorStore:** our two-method interface (`index`, `search`). The rest of the app depends on it, not on Chroma.
+- **Embedder:** the `embed` function passed into the store. Production uses the real model, tests use a tiny fake.
+- **Retrieval:** finding the relevant facts before any answer is written.
+- **RAG:** retrieval first, then an LLM writes an answer from only those facts.
+- **LLM:** a chat model that writes text. It is not used in this issue.
