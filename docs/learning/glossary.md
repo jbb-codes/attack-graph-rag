@@ -82,3 +82,20 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Refusal:** Claude declining a request; we turn it into our generic error.
 - **Live test:** a test that calls the real API. It costs a little, so it only runs on request.
 - **Ollama:** a free tool that runs open models on your own machine and serves them over a local HTTP address.
+
+## HTTP API
+
+- **HTTP API:** a program other programs talk to over the web, with requests and replies.
+- **FastAPI:** the Python web framework we use. Like Express, with typed helpers.
+- **uvicorn:** the server that runs a FastAPI app. Like `node server.js`.
+- **Endpoint:** one URL plus method, such as `POST /ask`.
+- **Response shape:** the fixed JSON layout every reply uses: `success`, `data`, `error`.
+- **Status code:** the number in a reply: 200 fine, 400 your mistake, 429 slow down, 500 our crash.
+- **Rate limiting:** refusing a client that sends too many requests too fast.
+- **Sliding window:** counting requests in the last N seconds, not in fixed clock slots.
+- **Retry-After:** a reply header saying how many seconds to wait.
+- **Injected clock:** time passed in as a function so tests can move it by hand.
+- **Security headers:** reply headers that tell browsers to be strict, such as `nosniff`.
+- **Health endpoint:** a cheap URL that says the service is up, for monitors.
+- **Stack trace:** the list of code locations from a crash. Never show it to clients.
+- **Test client:** calls the app in memory, with no real network or port.

@@ -75,3 +75,15 @@ A one-to-one map from what you know to what this repo uses. New rows are added a
 - `Callable[[str, dict], dict]` is a function type, like `(url: string, body: object) => object`.
 - `@pytest.mark.live` tags a test; `-m 'not live'` in `addopts` skips tagged tests by default.
 - `urllib.request` is the standard-library HTTP client. Think a tiny built-in `fetch`.
+- `FastAPI()` is `express()`. `@app.get("/x")` and `@app.post("/x")` register routes, like `app.get("/x", handler)`.
+- `async def` handlers use `await`, as in JS. `run_in_threadpool(fn, arg)` runs blocking code off the event loop.
+- `TestClient(app)` calls routes in memory, like `supertest(app)`. `client.post("/x", json={...})`.
+- `JSONResponse(body, status_code=400, headers={...})` is `res.status(400).json(body)`.
+- `@app.middleware("http")` wraps every request, like Express `app.use`. `await call_next(request)` is `next()`.
+- `deque` is a queue with fast pushes and pops at both ends. `popleft()` is `shift()`.
+- `time.monotonic` is a clock that never jumps backwards; use it to measure durations, not dates.
+- `isinstance(x, str)` is `typeof x === "string"`. `json.loads` is `JSON.parse` and raises `ValueError` on bad input.
+- `lambda: expr` is `() => expr`. A `Callable[[], float]` type is `() => number`.
+- `@pytest.fixture` returning a function makes a test factory; tests take it as a parameter by name.
+- `caplog` is a pytest fixture holding captured log lines, for asserting what was (not) logged.
+- `logging.getLogger(name)` then `log.warning("x %s", v)` logs lazily, like a leveled `console`.
