@@ -1,0 +1,17 @@
+[
+  {"id": "specific-powershell", "kind": "specific", "question": "Which technique covers abusing PowerShell to run commands on Windows?", "expect_status": "answered", "cited_all": ["T1059.001"]},
+  {"id": "specific-lsass", "kind": "specific", "question": "How do attackers dump credentials from LSASS memory?", "expect_status": "answered", "cited_all": ["T1003.001"]},
+  {"id": "specific-run-keys", "kind": "specific", "question": "How do adversaries persist using registry Run keys or the Startup folder?", "expect_status": "answered", "cited_all": ["T1547.001"]},
+  {"id": "specific-rdp", "kind": "specific", "question": "How do attackers use Remote Desktop Protocol to move laterally?", "expect_status": "answered", "cited_all": ["T1021.001"]},
+  {"id": "specific-ransomware", "kind": "specific", "question": "Which technique describes ransomware encrypting files to disrupt availability?", "expect_status": "answered", "cited_all": ["T1486"]},
+  {"id": "specific-id-and-tactic", "kind": "specific", "question": "What is T1566.001 and which tactic is it under?", "expect_status": "answered", "cited_all": ["T1566.001"], "must_contain": ["initial access"]},
+  {"id": "vague-email", "kind": "vague", "question": "how do attackers get in through email?", "expect_status": "answered", "cited_any": ["T1566", "T1566.001"]},
+  {"id": "vague-passwords", "kind": "vague", "question": "how do bad guys steal passwords from a computer?", "expect_status": "answered", "cited_any": ["T1003", "T1003.001"]},
+  {"id": "vague-hide-code", "kind": "vague", "question": "how do hackers hide their malicious code from antivirus?", "expect_status": "answered", "cited_any": ["T1027"]},
+  {"id": "vague-persistence", "kind": "vague", "question": "how do attackers keep access after a reboot?", "expect_status": "answered", "cited_any": ["T1547", "T1547.001", "T1053", "T1543"]},
+  {"id": "vague-steal-data", "kind": "vague", "question": "how do attackers get stolen data out of a network?", "expect_status": "answered", "cited_any": ["T1041", "T1071"]},
+  {"id": "unsupported-bread", "kind": "unsupported", "question": "how to bake sourdough bread", "expect_status": "not_found"},
+  {"id": "unsupported-sports", "kind": "unsupported", "question": "who won the football world cup in 2018?", "expect_status": "not_found"},
+  {"id": "unsupported-poem", "kind": "unsupported", "question": "write me a poem about the sea", "expect_status": "not_found"},
+  {"id": "unsupported-weather", "kind": "unsupported", "question": "what is the weather in Paris today?", "expect_status": "not_found"}
+]
