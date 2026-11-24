@@ -3,12 +3,15 @@
 import argparse
 import os
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from importlib.resources import as_file, files
 from pathlib import Path
 
+from fastapi import FastAPI
+
 from attack_graph.answer import Answer, Answerer
 from attack_graph.graph import AttackGraph, DataFileError, Group, Ref, Technique
+from attack_graph.api import create_app
 from attack_graph.config import ConfigError, build_llm, load_llm_settings
 from attack_graph.llm import LLM
 from attack_graph.vector import ChromaVectorStore, Embed, VectorStoreError, default_embed
@@ -26,6 +29,15 @@ DATA_DIR = Path("data")
 STORE = DATA_DIR / "attack-graph.nt"
 VECTOR_DIR = DATA_DIR / "chroma"
 
+RunServer = Callable[[FastAPI, str, int], None]
+
+
+def _uvicorn_run(app: FastAPI, host: str, port: int) -> None:
+    # Imported here so other commands never pay for loading the server.
+    import uvicorn
+
+    uvicorn.run(app, host=host, port=port)
+
 
 def main(
     argv: Sequence[str] | None = None,
@@ -35,13 +47,14 @@ def main(
     embed: Embed = default_embed,
     llm: LLM | None = None,
     env: Mapping[str, str] | None = None,
+    run_server: RunServer = _uvicorn_run,
 ) -> int:
     args = _build_parser().parse_args(argv)
 
     if args.command == "load":
         return _run_load(release, fetch)
 
-    if args.command == "ask" and llm is None:
+    if args.command in ("ask", "serve") and llm is None:
         # Fail fast, before touching any data, if the model is not configured.
         try:
             llm = build_llm(load_llm_settings(os.environ if env is None else env))
@@ -73,6 +86,9 @@ def main(
         return 0
     if args.command == "ask":
         return _run_ask(args.question, graph, embed, llm)
+    if args.command == "serve":
+        run_server(create_app(Answerer(ChromaVectorStore(VECTOR_DIR, embed), graph, llm)), args.host, args.port)
+        return 0
     if args.command == "technique":
         technique = graph.technique(args.id)
         if technique is None:
@@ -98,6 +114,10 @@ def _build_parser() -> argparse.ArgumentParser:
     search.add_argument("question")
     search.add_argument("--limit", type=int, default=5, help="how many techniques to show (default 5)")
     sub.add_parser("ask", help="answer a question using techniques and graph facts").add_argument("question")
+    serve = sub.add_parser("serve", help="run the HTTP API (POST /ask, GET /health)")
+    # Localhost only by default; exposing it is a deliberate choice.
+    serve.add_argument("--host", default="127.0.0.1", help="address to listen on (default 127.0.0.1)")
+    serve.add_argument("--port", type=int, default=8000, help="port to listen on (default 8000)")
     sub.add_parser("technique", help="look up a technique by ID, e.g. T1566.001").add_argument("id")
     sub.add_parser("group", help="look up a group by name or alias, e.g. APT29").add_argument("name")
     return parser
