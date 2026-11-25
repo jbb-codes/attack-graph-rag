@@ -4,7 +4,7 @@ How to run, configure and troubleshoot attack-graph-rag. For what the project is
 
 ## Verification status
 
-Read this first. Some of what follows was written on a machine with no Docker, kind, kubectl or API key, so it has **not** all been run.
+Read this first. Not everything below has been run: kind, trivy and an API key were not available, so Kubernetes, the image scan and real-model answers are untested. Docker was available later and the Compose stack was run.
 
 | Part                                                                                                                                   | Status                                                       | How to check it yourself                                                                    |
 | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
@@ -12,13 +12,13 @@ Read this first. Some of what follows was written on a machine with no Docker, k
 | CLI and HTTP API with the offline answerer on the bundled fixture                                                                      | Verified                                                     | the demo in the [README](../README.md#demo)                                                 |
 | Full ATT&CK v20.1 load, index, search, ask, restart persistence against real Oxigraph and Chroma servers, run natively (no containers) | Verified during issue #9                                     | see decisions, "Docker stack design"                                                        |
 | Source security scans (pip-audit, bandit, checkov)                                                                                     | Verified, results recorded                                   | `scripts/security-scan.sh`, [results](security/scan-results.md)                             |
-| Dockerfiles, `compose.yaml`                                                                                                            | **Written, never run**                                       | `scripts/compose-smoke.sh`                                                                  |
+| Dockerfiles, `compose.yaml` | Verified 2026-11-24: `scripts/compose-smoke.sh` passes all 5 checks (one command starts it, health, non-root, `ask` through the containers, data survives a restart). First run found a bug (Chroma could not write its data folder); fixed in the `Dockerfile` | `scripts/compose-smoke.sh` |
 | Kubernetes manifests in `k8s/`                                                                                                         | **Written, never run**; only parsed and checked offline      | `scripts/k8s-smoke.sh`                                                                      |
 | Container image vulnerability scan                                                                                                     | **Not run** (needs Docker and trivy); results table is empty | `scripts/security-scan.sh images`, then fill in [scan-results.md](security/scan-results.md) |
 | `ask` with the real Claude model                                                                                                       | **Not run** (no API key); only the live test and fakes exist | `uv run pytest -m live`                                                                     |
 | Eval set against a real model                                                                                                          | **Not run**; expected IDs are untuned                        | `uv run attack-graph eval`                                                                  |
 
-Likeliest first-run surprises (from the decisions log): the read-only root filesystem on `app`, the memory limit for the embedding model, and volume permissions on kind. If the smoke scripts fail, fix and record it.
+Likeliest Kubernetes first-run surprises (from the decisions log): the read-only root filesystem on `app`, the memory limit for the embedding model, and volume permissions on kind. Compose hit exactly this kind of volume-permission bug once (the Kubernetes Chroma pod sets `fsGroup`, so it should not). If the smoke scripts fail, fix and record it.
 
 ## 1. Run locally (plain Python)
 
@@ -64,7 +64,7 @@ uv run attack-graph eval                # real-model eval set, needs index first
 
 ## 2. Run with Docker Compose
 
-Needs Docker with Compose. **Not run yet, see [verification status](#verification-status).**
+Needs Docker with Compose. Checked with `scripts/compose-smoke.sh` (see [verification status](#verification-status)); `ask` through Compose with a real model has not been run.
 
 ```bash
 cp .env.example .env                    # set the API key, or ATTACK_GRAPH_LLM=offline
