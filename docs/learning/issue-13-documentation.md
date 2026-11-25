@@ -14,14 +14,12 @@ Note: Docker, kind, kubectl and an API key were not available, so the README dem
 - **Licence notice:** MITRE lets you use ATT&CK if you keep their copyright line and licence with any copy. The README does.
 - **Accepted vs open:** an accepted finding has a written reason; an open gap is a known weakness nobody has fixed yet.
 
-## The big picture: how the whole project answers a question
-
-This is the diagram from the README. Numbers match the steps below it.
+## The big picture
 
 **Key**
 
-- **Teal boxes are data:** text and facts moving through.
-- **Purple boxes are code:** the parts that do work.
+- **Teal boxes are data:** the docs and the facts they report.
+- **Purple boxes are code:** the commands and scripts that produce or check them.
 
 ```mermaid
 ---
@@ -31,69 +29,25 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  Q["`**1 question**
-  your plain English`"] --> API["`**2 CLI / HTTP API**
-  checks input, limits requests`"]
-  API --> ASK["`**3 ask(question)**
-  runs the steps below`"]
-  ASK --> VS["`**4 Chroma search**
-  finds techniques by meaning`"]
-  VS --> HITS["`**5 candidates**
-  far-off matches dropped`"]
-  HITS -->|none left| NF["`**6 not found**
-  LLM never called`"]
-  HITS --> GS["`**7 graph lookup**
-  SPARQL, exact facts`"]
-  GS --> FACTS["`**8 facts**
-  groups, software, fixes`"]
-  FACTS --> LLM["`**9 LLM**
-  writes answer from facts only`"]
-  LLM --> CHK["`**10 reply check**
-  keep only retrieved IDs`"]
-  CHK --> OUT["`**11 answer + citations**`"]
-  STIX["`**A ATT&CK data**
-  pinned v20.1, checksummed`"] --> LOAD["`**B load and index**
-  run once before asking`"]
-  LOAD --> GS
-  LOAD --> VS
+  CLI["`**attack-graph CLI**
+  index, ask, serve`"] --> OUT["`**real output**
+  pasted into README`"]
+  OUT --> README["`**README.md**
+  pitch, diagram, demo`"]
+  OPS["`**operations.md**
+  run, configure, fix`"]
+  SMOKE["`**smoke scripts**
+  compose, k8s, scan`"] -.->|"still to run"| OPS
+  TERMS["`**ATT&CK terms**
+  copyright line`"] --> README
+  LOG["`**decisions.md**
+  every choice`"] --> README
+  LOG --> OPS
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
   classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
-  class Q,HITS,NF,FACTS,OUT,STIX data
-  class API,ASK,VS,GS,LLM,CHK,LOAD code
+  class OUT,README,OPS,TERMS,LOG data
+  class CLI,SMOKE code
 ```
-
-## The steps
-
-1. **Question:** you type something like "how do attackers get in through email?".
-2. **CLI / HTTP API:** the front door. Rejects empty or too-long questions, rate-limits, and always replies in the same `{success, data, error}` shape.
-3. **ask(question):** the one function that runs steps 4 to 11. The CLI and API both call it.
-4. **Chroma search:** your question is embedded (turned into numbers for its meaning) and Chroma returns the techniques with the closest numbers.
-5. **Candidates:** the closest techniques. Anything farther than cosine distance 0.75 is dropped.
-6. **Not found:** nothing left means we stop and say so. The LLM is never called.
-7. **Graph lookup:** a SPARQL query fetches exact facts for each candidate.
-8. **Facts:** which groups use it, which software, which mitigations, as plain text.
-9. **LLM:** gets the question and only these facts, and writes a short answer.
-10. **Reply check:** keep only technique IDs we really retrieved. A reply with none, or one leaking the rules, becomes "not found".
-11. **Answer + citations:** what you see.
-
-**Setup, once:** **A** is MITRE's data file. **B** `load` builds the graph (feeds 7) and `index` embeds every technique into Chroma (feeds 4).
-
-## Key terms
-
-- **ATT&CK:** MITRE's public catalog of attacker behavior.
-- **Technique:** one attacker method with an ID, like `T1566` (Phishing).
-- **Vector:** a list of numbers standing for a text's meaning.
-- **Embed:** turn text into a vector. Similar meanings give similar numbers.
-- **MiniLM (`all-MiniLM-L6-v2`):** the small model that makes the embeddings. Runs on your CPU, no key, ~80 MB download once.
-- **Chroma:** a vector database. Stores vectors and finds the closest ones to your question.
-- **Cosine distance:** how far apart two meanings are. 0 is identical; our cutoff is 0.75.
-- **Knowledge graph / RDF:** facts stored as links (`APT29 uses T1566`).
-- **SPARQL:** the query language for those links, like SQL for a graph.
-- **Oxigraph:** the SPARQL server used in Docker and Kubernetes.
-- **LLM:** the AI that writes the answer: Claude, a local model, or `offline`.
-- **RAG:** retrieve facts first, then let the LLM write only from them.
-- **Citation:** a technique ID we really retrieved, so you can check the claim.
-- **Prompt injection:** text that tries to make the AI ignore its rules. We lower the risk, not remove it.
 
 ## Files and purpose
 
