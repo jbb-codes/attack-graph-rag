@@ -6,15 +6,6 @@ Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-nod
 
 Note: Docker was not available, so **the container images were not scanned**. The results page has an empty table and the one command to fill it (`scripts/security-scan.sh images`).
 
-## New ideas in plain English
-
-- **Security event:** one log line saying something suspicious happened (too many requests, bad input). It says what and why, never the content.
-- **Log policy:** type, reason and numbers only. No question text, no keys, no exception messages, no addresses.
-- **Opaque client id:** the caller's address run through a keyed hash. You can tell "the same caller again" but not who it is, and it resets on restart.
-- **Vulnerability scan:** compare the exact versions you ship against a public list of known bugs (CVEs).
-- **Accepted finding:** a known issue we chose to keep, written down with the reason. Not hidden, not ignored.
-- **Image scan vs source scan:** an image also contains the operating system's packages, which the lockfile does not list. Only an image scan sees them.
-
 ## The big picture
 
 **Key**
