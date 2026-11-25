@@ -24,24 +24,24 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  Q["`**1. Questions**
+  Q["`**Questions**
   evals/questions.json`"] --> RUN
-  C["`**2. Attacks**
-  tests/injection_corpus.json`"] --> INJ["`**3. injection_cases**
+  C["`**Attacks**
+  tests/injection_corpus.json`"] --> INJ["`**injection_cases**
   evals.py`"]
-  INJ --> RUN["`**4. run_evals**
+  INJ --> RUN["`**run_evals**
   evals.py`"]
-  RUN --> ASK["`**5. Answerer.ask**
+  RUN --> ASK["`**Answerer.ask**
   answer.py`"]
-  ASK --> SC["`**6. score_case**
+  ASK --> SC["`**score_case**
   evals.py`"]
-  SC --> SUM["`**7. summarize**
+  SC --> SUM["`**summarize**
   evals.py`"]
-  SC --> SAVE["`**8. save_run**
+  SC --> SAVE["`**save_run**
   evals.py`"]
   SAVE --> R["`**eval-results/**
   git-ignored JSON`"]
-  R --> PREV["`**9. latest_run**
+  R --> PREV["`**latest_run**
   evals.py`"]
   PREV --> SUM
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
