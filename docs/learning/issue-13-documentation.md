@@ -35,12 +35,9 @@ flowchart TD
   stale entries fixed`"]
   README --> STAT["`**CLAUDE.md**
   current stage updated`"]
-  OPS --> VER["`**verification status**
-  run vs never run`"]
-  VER --> README
   classDef made fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
   classDef source fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
-  class README,OPS,DEC,STAT,VER made
+  class README,OPS,DEC,STAT made
   class READ,RUN,MITRE source
 ```
 
@@ -51,7 +48,6 @@ flowchart TD
 - **operations.md:** how to run it locally, in Docker and on Kubernetes, plus settings and troubleshooting.
 - **decisions.md:** fixed lines that were out of date (for example "the CLI uses a stand-in for now") and added a documentation entry.
 - **CLAUDE.md:** updated the current-stage section and the note that the README was deferred.
-- **Verification status:** a table in the README and the operations guide saying what was really run and what was only written (Docker, Kubernetes, image scan, real-model `ask` and evals).
 
 ## Files and purpose
 
