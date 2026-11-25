@@ -6,20 +6,12 @@ Related: [glossary](glossary.md), [Python for Node/TS developers](python-for-nod
 
 Note: Docker, kind, kubectl and an API key were not available, so the README demo uses the offline answerer and the guides mark everything unrun as unverified.
 
-## New ideas in plain English
-
-- **Verification status:** a table saying what was really run and what was only written. It stops the docs claiming more than is true.
-- **Smoke test:** one script that starts the thing and checks it basically works. `compose-smoke.sh` and `k8s-smoke.sh` are the ones still to run.
-- **Offline answerer:** a stand-in that restates one fact. Good for demos with no key; says nothing about real answer quality.
-- **Licence notice:** MITRE lets you use ATT&CK if you keep their copyright line and licence with any copy. The README does.
-- **Accepted vs open:** an accepted finding has a written reason; an open gap is a known weakness nobody has fixed yet.
-
-## The big picture
+## What was done, step by step
 
 **Key**
 
-- **Teal boxes are data:** the docs and the facts they report.
-- **Purple boxes are code:** the commands and scripts that produce or check them.
+- **Teal boxes:** files written or changed in this issue.
+- **Purple boxes:** existing things we read or ran to get true facts for those files.
 
 ```mermaid
 ---
@@ -29,25 +21,37 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  CLI["`**attack-graph CLI**
-  index, ask, serve`"] --> OUT["`**real output**
-  pasted into README`"]
-  OUT --> README["`**README.md**
+  READ["`**1 read the project**
+  issues, PRs, code, docs`"] --> RUN["`**2 run the commands**
+  offline, on the fixture`"]
+  MITRE["`**3 read MITRE terms**
+  the exact copyright line`"] --> README["`**4 README.md**
   pitch, diagram, demo`"]
-  OPS["`**operations.md**
+  RUN --> README
+  READ --> OPS["`**5 operations.md**
   run, configure, fix`"]
-  SMOKE["`**smoke scripts**
-  compose, k8s, scan`"] -.->|"still to run"| OPS
-  TERMS["`**ATT&CK terms**
-  copyright line`"] --> README
-  LOG["`**decisions.md**
-  every choice`"] --> README
-  LOG --> OPS
-  classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
-  classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
-  class OUT,README,OPS,TERMS,LOG data
-  class CLI,SMOKE code
+  RUN --> OPS
+  READ --> DEC["`**6 decisions.md**
+  stale entries fixed`"]
+  README --> STAT["`**7 CLAUDE.md**
+  current stage updated`"]
+  OPS --> VER["`**8 verification status**
+  run vs never run`"]
+  VER --> README
+  classDef made fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
+  classDef source fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
+  class README,OPS,DEC,STAT,VER made
+  class READ,RUN,MITRE source
 ```
+
+1. **Read the project:** read issues #1 and #13, the earlier PRs, the code and the docs, so the new docs say only what exists.
+2. **Run the commands:** ran `index`, `technique`, `search`, `ask` and `serve` offline. The README demo is that real output, with no invented model answers.
+3. **Read MITRE terms:** copied the exact copyright line from MITRE's Terms of Use page, so the credit is correct.
+4. **README.md:** pitch, diagram, demo, future improvements and the credit.
+5. **operations.md:** how to run it locally, in Docker and on Kubernetes, plus settings and troubleshooting.
+6. **decisions.md:** fixed lines that were out of date (for example "the CLI uses a stand-in for now") and added a documentation entry.
+7. **CLAUDE.md:** updated the current-stage section and the note that the README was deferred.
+8. **Verification status:** a table in the README and the operations guide saying what was really run and what was only written (Docker, Kubernetes, image scan, real-model `ask` and evals).
 
 ## Files and purpose
 
