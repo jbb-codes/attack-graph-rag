@@ -182,8 +182,8 @@ uv run attack-graph ask "how do attackers get in through email?"
 
 Honest summary of what has and has not been run. The full table is in [docs/operations.md](docs/operations.md#verification-status).
 
-- **Verified:** the offline test suite; the CLI and HTTP API in offline mode (the demo above); the full v20.1 load, index, search and ask run natively against real Oxigraph and Chroma servers (per the issue #9 notes); source security scans.
-- **Written but never run:** Docker images and Compose stack, Kubernetes manifests, container image scan. They were written on a machine with no Docker, kind or kubectl. Run `scripts/compose-smoke.sh`, `scripts/k8s-smoke.sh` and `scripts/security-scan.sh images` before relying on them.
+- **Verified:** the offline test suite; the CLI and HTTP API in offline mode (the demo above); the Docker images and Compose stack (`scripts/compose-smoke.sh` passes all 5 checks, run 2026-11-24, after one fix: the Chroma data folder was not writable by the non-root user); the full v20.1 load, index, search and ask run natively against real Oxigraph and Chroma servers (per the issue #9 notes); source security scans.
+- **Written but never run:** Kubernetes manifests (kind is not installed, so `scripts/k8s-smoke.sh` has not run) and the container image scan (trivy is not installed). Run `scripts/k8s-smoke.sh` and `scripts/security-scan.sh images` before relying on them.
 - **Not run against a real model:** `ask` with Claude and the eval set. Eval expectations are untuned.
 
 ## Future improvements
