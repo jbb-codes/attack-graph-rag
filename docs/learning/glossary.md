@@ -44,9 +44,7 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 ## Search by meaning
 
 - **Embedding:** a text turned into a list of numbers. Similar meaning gives similar numbers.
-- **Embed (verb):** turn text into numbers that capture its meaning.
 - **Embedding model:** the program that makes embeddings. Ours is `all-MiniLM-L6-v2`, run locally.
-- **MiniLM (all-MiniLM-L6-v2):** the small model (~80 MB) Chroma uses to make embeddings. It runs on your machine, not in the cloud.
 - **Vector:** that list of numbers (384 of them for our model).
 - **Vector search:** embed the question, then find the stored vectors closest to it.
 - **Cosine distance:** how far apart two vectors point. Smaller means closer in meaning.
@@ -54,7 +52,6 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Collection:** Chroma's "table". Ours is `techniques`.
 - **Index (verb):** embed every technique and store it. We rebuild it from scratch each time.
 - **Protocol:** a Python interface. Anything with the right methods fits, no `implements` needed.
-- **Embed (verb):** run text through the embedding model to get its vector.
 - **VectorStore:** our two-method interface (`index`, `search`). The rest of the app depends on it, not on Chroma.
 - **Embedder:** the `embed` function passed into the store. Production uses the real model, tests use a tiny fake.
 - **Retrieval:** finding the relevant facts before any answer is written.
@@ -125,7 +122,7 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Layer:** each Dockerfile step is saved. Unchanged steps are reused, so rebuilds are fast.
 - **Multi-stage build:** build in one image, copy only the result into a clean final one, so build tools never ship.
 - **Digest (`@sha256:...`):** a fingerprint of an exact image. Pinning it means a rebuild gets identical bytes.
-- **Volume:** a folder Docker keeps outside the container, so data survives it being removed.
+- **Volume:** a folder kept outside the container so data survives its removal. In Kubernetes, a PVC is how a pod asks for one that lasts.
 - **Bind to 0.0.0.0:** listen on every network address inside the container. Safe, because Compose picks what is reachable from outside.
 - **Port mapping:** `127.0.0.1:8000:8000` opens container port 8000 on your machine only.
 - **Healthcheck:** a command Docker runs repeatedly. Exit 0 means the container is `healthy`.
@@ -157,10 +154,8 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Pod Security level `restricted`:** a namespace setting; Kubernetes refuses pods that are root or hold extra privileges.
 - **Port-forward:** `kubectl port-forward` opens a local port that tunnels to a Service or pod.
 - **Resource request / limit:** the memory and CPU a pod reserves, and the ceiling it is killed or throttled at.
-- **Volume:** a disk or folder mounted into a container. A PVC is how a pod asks for one that lasts.
 - **Cluster:** the whole Kubernetes system. **Node:** one machine in it. kind makes a one-node cluster inside Docker.
 - **YAML manifest:** a text file describing what you want ("a Deployment named app"). `kubectl apply -f` makes the cluster match it.
-- **MiniLM (`all-MiniLM-L6-v2`):** the small embedding model (about 80 MB) that turns text into 384 numbers, run on your machine.
 - **Oxigraph:** the program that stores the graph facts and answers SPARQL over HTTP.
 - **kubectl apply:** make the cluster match the YAML files given.
 
@@ -191,7 +186,6 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 ## Documentation
 
 - **Verification status:** a table of what was really run and what was only written.
-- **Smoke test:** a quick script that starts the system and checks it basically works.
 - **Offline answerer:** a stand-in "model" that restates one fact. Fine for demos, not a quality test.
 - **Mermaid:** diagrams written as text in a Markdown code block; GitHub draws them.
 - **Licence notice:** the copyright line you must keep when you reuse someone's data, here MITRE's for ATT&CK.
