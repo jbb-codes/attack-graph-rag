@@ -21,21 +21,21 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  READ["`**1 read the project**
-  issues, PRs, code, docs`"] --> RUN["`**2 run the commands**
+  READ["`**read the project**
+  issues, PRs, code, docs`"] --> RUN["`**run the commands**
   offline, on the fixture`"]
-  MITRE["`**3 read MITRE terms**
-  the exact copyright line`"] --> README["`**4 README.md**
+  MITRE["`**read MITRE terms**
+  the exact copyright line`"] --> README["`**README.md**
   pitch, diagram, demo`"]
   RUN --> README
-  READ --> OPS["`**5 operations.md**
+  READ --> OPS["`**operations.md**
   run, configure, fix`"]
   RUN --> OPS
-  READ --> DEC["`**6 decisions.md**
+  READ --> DEC["`**decisions.md**
   stale entries fixed`"]
-  README --> STAT["`**7 CLAUDE.md**
+  README --> STAT["`**CLAUDE.md**
   current stage updated`"]
-  OPS --> VER["`**8 verification status**
+  OPS --> VER["`**verification status**
   run vs never run`"]
   VER --> README
   classDef made fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
@@ -44,14 +44,14 @@ flowchart TD
   class READ,RUN,MITRE source
 ```
 
-1. **Read the project:** read issues #1 and #13, the earlier PRs, the code and the docs, so the new docs say only what exists.
-2. **Run the commands:** ran `index`, `technique`, `search`, `ask` and `serve` offline. The README demo is that real output, with no invented model answers.
-3. **Read MITRE terms:** copied the exact copyright line from MITRE's Terms of Use page, so the credit is correct.
-4. **README.md:** pitch, diagram, demo, future improvements and the credit.
-5. **operations.md:** how to run it locally, in Docker and on Kubernetes, plus settings and troubleshooting.
-6. **decisions.md:** fixed lines that were out of date (for example "the CLI uses a stand-in for now") and added a documentation entry.
-7. **CLAUDE.md:** updated the current-stage section and the note that the README was deferred.
-8. **Verification status:** a table in the README and the operations guide saying what was really run and what was only written (Docker, Kubernetes, image scan, real-model `ask` and evals).
+- **Read the project:** read issues #1 and #13, the earlier PRs, the code and the docs, so the new docs say only what exists.
+- **Run the commands:** ran `index`, `technique`, `search`, `ask` and `serve` offline. The README demo is that real output, with no invented model answers.
+- **Read MITRE terms:** copied the exact copyright line from MITRE's Terms of Use page, so the credit is correct.
+- **README.md:** pitch, diagram, demo, future improvements and the credit.
+- **operations.md:** how to run it locally, in Docker and on Kubernetes, plus settings and troubleshooting.
+- **decisions.md:** fixed lines that were out of date (for example "the CLI uses a stand-in for now") and added a documentation entry.
+- **CLAUDE.md:** updated the current-stage section and the note that the README was deferred.
+- **Verification status:** a table in the README and the operations guide saying what was really run and what was only written (Docker, Kubernetes, image scan, real-model `ask` and evals).
 
 ## Files and purpose
 
