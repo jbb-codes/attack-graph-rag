@@ -24,29 +24,29 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  Q["`**question**
-  plain English`"] --> API["`**CLI / HTTP API**
-  limits, one reply shape`"]
-  API --> ASK["`**ask(question)**
-  the one entry point`"]
-  ASK --> VS["`**VectorStore**
-  Chroma, by meaning`"]
-  VS --> HITS["`**candidate IDs**
-  too far away = dropped`"]
-  HITS -->|none| NF["`**not found**
-  LLM not called`"]
-  HITS --> GS["`**GraphStore**
+  Q["`**1 question**
+  your plain English`"] --> API["`**2 CLI / HTTP API**
+  checks input, limits requests`"]
+  API --> ASK["`**3 ask(question)**
+  runs the steps below`"]
+  ASK --> VS["`**4 Chroma search**
+  finds techniques by meaning`"]
+  VS --> HITS["`**5 candidates**
+  far-off matches dropped`"]
+  HITS -->|none left| NF["`**6 not found**
+  LLM never called`"]
+  HITS --> GS["`**7 graph lookup**
   SPARQL, exact facts`"]
-  GS --> FACTS["`**facts**
-  groups, software, mitigations`"]
-  FACTS --> LLM["`**LLM client**
-  Claude, local or offline`"]
-  LLM --> CHK["`**reply checks**
-  keep retrieved IDs only`"]
-  CHK --> OUT["`**answer + citations**`"]
-  STIX["`**ATT&CK STIX v20.1**
-  pinned, checksummed`"] --> LOAD["`**load / index**
-  builds graph and vectors`"]
+  GS --> FACTS["`**8 facts**
+  groups, software, fixes`"]
+  FACTS --> LLM["`**9 LLM**
+  writes answer from facts only`"]
+  LLM --> CHK["`**10 reply check**
+  keep only retrieved IDs`"]
+  CHK --> OUT["`**11 answer + citations**`"]
+  STIX["`**A ATT&CK data**
+  pinned v20.1, checksummed`"] --> LOAD["`**B load and index**
+  run once before asking`"]
   LOAD --> GS
   LOAD --> VS
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
@@ -54,6 +54,24 @@ flowchart TD
   class Q,HITS,NF,FACTS,OUT,STIX data
   class API,ASK,VS,GS,LLM,CHK,LOAD code
 ```
+
+**Steps, in plain English** (numbers match the boxes):
+
+1. **Question:** you type something like "how do attackers get in through email?".
+2. **CLI / HTTP API:** the front door. Rejects empty or too-long questions, rate-limits, and always replies in the same `{success, data, error}` shape.
+3. **ask(question):** the single function that runs steps 4 to 11. The CLI and API both call it.
+4. **Chroma search:** Chroma is a vector database. Every technique was *embedded* earlier (turned into a list of numbers for its meaning, by the MiniLM model). Your question is embedded the same way, and Chroma returns the techniques with the closest numbers.
+5. **Candidates:** the closest techniques. Any hit farther than cosine distance 0.75 is dropped as not relevant.
+6. **Not found:** if no candidate is left, we stop and say so. The LLM is never called.
+7. **Graph lookup:** for each candidate, a SPARQL query on the knowledge graph fetches exact facts.
+8. **Facts:** which groups use the technique, which software, which mitigations, as plain text.
+9. **LLM:** the model gets the question and only these facts, and writes a short answer. (`offline` mode skips the model and restates one fact.)
+10. **Reply check:** keep only technique IDs we really retrieved. A reply with none, or one that leaks the system rules, becomes "not found".
+11. **Answer + citations:** what you see.
+
+**Setup, run once before asking:** **A** is MITRE's ATT&CK data file, pinned to v20.1 and checked by checksum. **B** `load` turns it into the graph (feeds step 7) and `index` embeds every technique into Chroma (feeds step 4).
+
+Why two stores: Chroma handles vague questions (meaning); the graph handles exact ones ("what does APT29 use?").
 
 Every component is behind a small interface and injected, so tests swap in an in-memory graph, a tiny fake embedder and a fake LLM. Reasons for each choice are in [docs/decisions.md](docs/decisions.md).
 
