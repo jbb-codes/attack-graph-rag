@@ -58,6 +58,23 @@ flowchart TD
   class API,ANS,LOG,IDS,SCAN code
 ```
 
+### What happens, step by step
+
+**Logging path (every request)**
+
+1. **request:** someone sends `POST /ask` with a question. The caller's address and the question arrive together.
+2. **api.py checks the input:** is the body too big, valid JSON, a string, not empty, not too long? If any check fails, it rejects the request and logs why.
+3. **ClientIds hides the caller:** the address becomes a short scrambled ID. The raw address is never written down.
+4. **Answerer checks the reply:** the model answers. If the reply leaks the rules, or cites nothing that was really retrieved, it is withheld and logged. If the model call fails, only the error type is logged.
+5. **log_event writes one line:** it takes an event name, a reason and numbers. It has no place to put the question text, so none can leak.
+6. **event line:** the result is a single line like `event=rate_limited client=ab12cd34ef56 retry_after=5`. Safe to read, share or ship to a log tool.
+
+**Scanning path (run on demand)**
+
+7. **Inputs:** `uv.lock` lists the exact packages. The Dockerfile and k8s files describe how it runs. The images are the built containers (not scanned yet, needs Docker).
+8. **security-scan.sh:** runs the scanners. `pip-audit` checks packages against known bugs, `bandit` checks our code, `checkov` checks the config files, `trivy` checks images.
+9. **scan-results.md:** the findings are written down. Each one is fixed or kept with a reason. A new finding makes the script fail.
+
 ## Files and purpose
 
 - `src/attack_graph/security_log.py`: `log_event`, `ClientIds`, `configure_logging`.
