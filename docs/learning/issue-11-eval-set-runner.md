@@ -16,11 +16,6 @@ Note: no API key was available when this was written. The runner was checked end
 
 ## The big picture
 
-**Key**
-
-- **Teal boxes are data:** question files and saved results.
-- **Purple boxes are code:** programs and functions.
-
 ```mermaid
 ---
 config:
@@ -29,31 +24,43 @@ config:
     wrappingWidth: 300
 ---
 flowchart TD
-  Q["`**questions.json**
-  15 cases`"] --> RUN
-  C["`**injection_corpus.json**
-  9 attacks`"] --> INJ["`**injection_cases**
-  attack + PowerShell question`"]
-  INJ --> RUN["`**run_evals**
-  ask each case`"]
-  RUN --> ASK["`**Answerer.ask**
-  real model`"]
-  ASK --> SC["`**score_case**
-  yes/no checks`"]
-  SC --> SUM["`**summarize**
-  score and failures`"]
-  SC --> SAVE["`**save_run**
-  one JSON per run`"]
+  Q["`**1. Questions**
+  evals/questions.json`"] --> RUN
+  C["`**2. Attacks**
+  tests/injection_corpus.json`"] --> INJ["`**3. injection_cases**
+  evals.py`"]
+  INJ --> RUN["`**4. run_evals**
+  evals.py`"]
+  RUN --> ASK["`**5. Answerer.ask**
+  answer.py`"]
+  ASK --> SC["`**6. score_case**
+  evals.py`"]
+  SC --> SUM["`**7. summarize**
+  evals.py`"]
+  SC --> SAVE["`**8. save_run**
+  evals.py`"]
   SAVE --> R["`**eval-results/**
-  git-ignored`"]
-  R --> PREV["`**latest_run**
-  last run`"]
+  git-ignored JSON`"]
+  R --> PREV["`**9. latest_run**
+  evals.py`"]
   PREV --> SUM
   classDef data fill:#9FE1CB,stroke:#0F6E56,stroke-width:2px,color:#04342C
   classDef code fill:#CECBF6,stroke:#534AB7,stroke-width:2px,color:#26215C
   class Q,C,R data
   class INJ,RUN,ASK,SC,SUM,SAVE,PREV code
 ```
+
+### Steps
+
+1. **Questions** (`evals/questions.json`): 15 hand-written questions (specific, vague, unsupported), each with what a good answer needs.
+2. **Attacks** (`tests/injection_corpus.json`): 9 prompt-injection strings from issue #8.
+3. **injection_cases** (`evals.py`): attaches each attack to a real PowerShell question, so search finds facts and Claude actually sees the attack.
+4. **run_evals** (`evals.py`): sends each question through `ask`, one at a time.
+5. **Answerer.ask** (`answer.py`): the normal pipeline: search, fetch facts, ask Claude. The eval tests the real thing.
+6. **score_case** (`evals.py`): grades each reply with yes/no checks: right status, expected IDs cited, required words present, forbidden words (like `PWNED`) absent.
+7. **summarize** (`evals.py`): prints the total, a line per question type, each failure, and what changed since the last run.
+8. **save_run** (`evals.py`): writes one JSON per run to `eval-results/`, which git ignores.
+9. **latest_run** (`evals.py`): loads the previous run so step 7 can compare.
 
 ## Files and purpose
 
