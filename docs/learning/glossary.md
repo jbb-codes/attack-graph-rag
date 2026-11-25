@@ -6,6 +6,7 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 
 - **ATT&CK:** MITRE's public catalog of attacker behavior.
 - **Technique:** one attacker method, with an ID like `T1566` (phishing).
+- **Technique ID:** the stable name of a technique, like `T1059.001`. Answers cite these.
 - **Group:** an attacker crew, like APT29 (`G0016`).
 - **Software:** malware or tools attackers use (`S...`).
 - **Mitigation:** a defense against a technique (`M...`).
@@ -45,6 +46,7 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **Embedding:** a text turned into a list of numbers. Similar meaning gives similar numbers.
 - **Embed (verb):** turn text into numbers that capture its meaning.
 - **Embedding model:** the program that makes embeddings. Ours is `all-MiniLM-L6-v2`, run locally.
+- **MiniLM (all-MiniLM-L6-v2):** the small model (~80 MB) Chroma uses to make embeddings. It runs on your machine, not in the cloud.
 - **Vector:** that list of numbers (384 of them for our model).
 - **Vector search:** embed the question, then find the stored vectors closest to it.
 - **Cosine distance:** how far apart two vectors point. Smaller means closer in meaning.
