@@ -18,7 +18,6 @@ Plain-English keywords for a Node/TS developer new to Python, RDF, and SPARQL. O
 - **RDF:** a way to store facts as `subject - predicate - object` triples.
 - **Triple:** one fact, like `T1566 - hasName - "Phishing"`.
 - **Graph:** a pile of triples. Things link to other things.
-- **Knowledge graph:** a graph of facts about one topic (here ATT&CK). It gives exact answers, where vector search only gives close ones.
 - **SPARQL:** SQL for triples. You describe a pattern and it returns every match.
 - **rdflib:** the Python library that holds the graph and runs SPARQL.
 - **`initBindings`:** safely plugs values into a query, like a `?` placeholder in SQL.
